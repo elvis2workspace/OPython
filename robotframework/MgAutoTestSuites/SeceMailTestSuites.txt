@@ -1,0 +1,33 @@
+*** Settings ***
+Library           AppiumLibrary
+
+*** Variables ***
+${REMOTE_URL}     http://localhost:4723/wd/hub
+${PLATFORM_NAME}    Android
+${PLATFORM_VERSION}    4.4
+${APP_PATH}       D:\/robotframework\/apps
+${DEVICE_NAME}    emulator
+
+*** Test Cases ***
+baidu_search
+    open Application    ${REMOTE_URL}    platformName=Android    platformVersion=4.4    deviceName=emulator    app=D:\/robotframework\/apps\/SecEmail.apk    automationName=appium
+    ...    appPackage=com.cetc30.email    appActivity=activity.ComposeActivityEmail
+    Go To Url    http://www.baidu.com
+    Close Application
+
+add_email_account
+    open Application    ${REMOTE_URL}    ${PLATFORM_NAME}    ${PLATFORM_VERSION}    ${DEVICE_NAME}    ${APP_PATH}    automationName=appium
+    ...    appPackage=com.cetc30.email    appActivity=activity.ComposeActivityEmail
+
+send_email
+
+send_email_attached
+
+delete_email
+
+ACTIVE_APP_MSG
+    open Application    ${REMOTE_URL}    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${APP_PATH}/SecEmail.apk    automationName=appium
+    ...    appPackage=com.cetc30.email    appActivity=smsregister.RegistrationActivity
+    log    Test is running    DEBUG
+    Input Text    id=com.cetc30.email:id/number    15828692608
+    Click Element    id=com.cetc30.email:id/codeButton

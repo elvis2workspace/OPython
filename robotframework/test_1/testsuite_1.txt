@@ -1,0 +1,59 @@
+*** Settings ***
+Suite Setup
+Test Timeout
+Library           OperatingSystem
+Resource          test_android_contact_resource.txt
+Library           CustomLibrary
+Library           AppiumLibrary
+
+*** Variables ***
+${newPath}        D:\/Logs
+
+*** Test Cases ***
+test1
+    ${random}=    Evaluate    random.randint(0, sys.maxint)    random,sys
+    log    testgroups${random}
+    ${yyyy}    ${mm}    ${dd} =    Get Time    year,month,day
+    log    ${yyyy}${mm}${dd}.txt
+    create directory    ${newPath}/Log_${yyyy}${mm}${dd}_${random}/
+    Create File    ${newPath}/Log_${yyyy}${mm}${dd}_${random}/Log_${yyyy}${mm}${dd}_${random}.txt    hello, world!
+
+test_install
+    #Evaluate    os.system('appium -a 192.168.4.153 -p 4723 --no-reset')    os
+    #Evaluate    subprocess.call (["cmd", "arg1", "arg2"],shell=True)    subprocess
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${APP}    automationName=appium
+    ...    appPackage=com.raycom.securesms    appActivity=cetc.ns.mnd.FlashScreenActivity
+
+test_crash
+    ${status}    Page Should Contain Textfield    id=android:id/message    很抱歉，“密语”已停止运行。    WARN
+    log    ${status}
+    run keyword if    ${status}==NONE    log    APP runing normal.
+    ...    ELSE    click Element    id=android:id/button2
+    ${pageSource}    get source
+
+testappium
+    ${localAddress}    Get Local Address
+    log    ${localAddress}
+    Launch Appium    ${localAddress}    4723    no-reset
+
+test2
+    ${pid}    Get Port Pid    4723
+    log    ${pid}
+    Grap AndroidLog AfterOper    23232    D:\\Logs\\
+    ${yyyy}    ${mm}    ${dd} =    get time    year,month,day
+    ${flag}=    Set Variable    ${yyyy}${mm}${dd}
+    log    ${flag}
+    copy file    Y:\\IM\\${flag}\\app-release.apk    D:\\apps\\
+
+test3
+    ${ip}    run    ipconfig
+    log    ${ip}
+
+pullHprofFile
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    Pull File    /data/data/westone.md.enterprisecontracts/20151223.hprof

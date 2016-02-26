@@ -1,0 +1,612 @@
+*** Settings ***
+Suite Setup
+Library           AppiumLibrary
+Library           CustomLibrary
+Library           OperatingSystem
+Resource          test_android_contact_resource.txt
+
+*** Variables ***
+${testtext60}     This is just a auto test content about miyu, no attention, i9@&*&*zhangxiuhaidahfdfkdfajdflahdfa%^&*60
+${testtext350}    Because many people in the Middle Ages cdfkajkdfioqeijioejiqje##########(((((*****fkakfjajfakdfjkajdfkajlkdfjalkdfjldjflajdfljalkdfjlkadflnz hz f \ ldflajdflkajldkfjlakdjflajdflajdlkfjaldfjladjfla jdlkajfld feijfjlfajfeifjlsdjfajieflajfjeifjlsjf$%^&*(dfadfdadfdadfdfasdfdfadfdfsdgdjjj$%^&*()dajdfja350
+${testtext}       This is just a test infomation, ignore please！
+
+*** Test Cases ***
+Initial
+    ${yyyy}    ${mm}    ${dd} =    get time    year,month,day
+    ${flag}=    Set Variable    ${yyyy}${mm}${dd}
+    log    ${flag}
+    Copy file    Y:\\IM\\${flag}\\app-release.apk    D:\\apps\\    #取当天的最新release包用于测试验证
+    ${appiumPid}    Get Port Pid    4723
+    run keyword if    None !=${appiumPid}    Stop Appium    ${appiumPid}
+    ...    ELSE    log    Appium is not runing.
+    ${localIp}    Get Local Address
+    ${currentAppiumPid}    Launch Appium    ${localIp}    4723    full-reset
+    Run Keyword If    ${currentAppiumPid}    log    Startup \ Appium successfully.
+    sleep    30s
+    [Teardown]    Run Keyword If Timeout Occurred    Set Androidlog Status    201589898989
+
+A1_正常状态安装
+    [Documentation]    预置条件:
+    ...
+    ...    安装软件包成功下载到手机中
+    ...
+    ...    操作步骤：
+    ...
+    ...    1：点击安装，一键式安装成功 "
+    ...
+    ...    预期结果:
+    ...
+    ...    1：可一键式安装成功，安装后进入欢迎页面
+    ...
+    ...    2：安装后目录和文件位置正确
+    ...
+    ...    3：检查安装后对其他应用程序无影响
+    ...    "
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${MiyuAPP}    automationName=appium
+    ...    appPackage=com.raycom.securesms    appActivity=cetc.ns.mnd.FlashScreenActivity
+    sleep    10s    等待app安装完成
+    Page Should Contain Text    欢迎来到密语    DEBUG
+    Page Should Contain Text    密语是首款安全加密的    DEBUG
+    click element    name=立即进入
+    sleep    10s    检查APP是否稳定
+    close Application
+    [Teardown]    Run Keyword If Test Failed    Close Application
+
+A5_正常状态注册
+    [Documentation]    预置条件:
+    ...
+    ...    软件已成功安装
+    ...
+    ...    操作步骤:
+    ...
+    ...    "1：左右滑动欢迎页面，进入注册页面
+    ...
+    ...
+    ...    2：输入个人电话号码，点击验证
+    ...
+    ...
+    ...    3：输入获取到的短信验证码，点击立即注册
+    ...
+    ...    4：进入注册进程显示界面
+    ...    "
+    ...
+    ...    预期结果:
+    ...
+    ...    "1：成功进入注册页面
+    ...
+    ...    2：验证码发送成功
+    ...
+    ...    3：收到验证码短信
+    ...
+    ...
+    ...    4：注册成功，进入个人信息设置页面"
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${MiyuAPP}    automationName=appium
+    ...    appPackage=com.raycom.securesms    appActivity=org.thoughtcrime.securesms.RegistrationActivity
+    log    Test is running    DEBUG
+    Input Text    id=com.raycom.securesms:id/number    ${TELE_NUMBER}
+    Click Element    id=com.raycom.securesms:id/codeButton
+    Input Text    id=com.raycom.securesms:id/verification_code    000000
+    click Element    id=com.raycom.securesms:id/registerButton
+    click element    id=android:id/button1    #继续
+    sleep    15s    waiting for verify whether the telephone number is normal or not.    #${value}    Page Should Contain Text    连接超时时，请重试！    DEBUG
+    ...    #run keyword if    ${value}==1    click element    name=返回    # ELSE    log
+    ...    # register succefully.
+    ${crash}    Page Should Contain Text    很抱歉，“密语”已停止运行。    DEBUG
+    log    ${crash}
+    run keyword if    ${crash}==None    click element    name=报告
+    ...    ELSE    log    it's normal.
+    sleep    15s
+    Hide Keyboard
+    #click element    name=下一步
+    sleep    5s    waiting for being \ normal.
+    Capture Page Screenshot
+    Page Should Contain Text    点击页面顶端的" "图示来发送信息给密语联系人。    DEBUG
+    [Teardown]    Run Keyword If Test Failed    Close Application
+
+A11_第一次注册成功时设置个人头像
+    [Documentation]    预置条件:
+    ...
+    ...    1：用户成功注册
+    ...
+    ...    操作步骤：
+    ...
+    ...    "1：设置用户头像
+    ...
+    ...    2：点击下一步
+    ...
+    ...    3：退出后再进入
+    ...
+    ...    4：结束进程后再进入"
+    ...
+    ...    预期结果：
+    ...
+    ...    "1：设置成功
+    ...
+    ...    2：姓名为空时，点击下一步提示请设置姓名
+    ...
+    ...    3：姓名为空时，退出后再进入仍然是该界面
+    ...
+    ...    "
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${APP}    automationName=appium
+    ...    appPackage=com.raycom.securesms    appActivity=org.thoughtcrime.securesms.RegistrationActivity
+    log    Test is running    DEBUG
+    Input Text    id=com.raycom.securesms:id/number    ${TELE_NUMBER}
+    Click Element    id=com.raycom.securesms:id/codeButton
+    Input Text    id=com.raycom.securesms:id/verification_code    000000
+    sleep    15s    waiting for register
+    click Element    id=com.raycom.securesms:id/registerButton
+    click element    id=android:id/button1    #继续
+    sleep    15s    waiting for verify whether the telephone number is normal or not.
+    ${value}    Page Should Contain Text    超时    DEBUG
+    run keyword if    ${value}==1    click element    name=返回
+    ...    ELSE    log    register succefully.
+    click Element    name=设置
+    click Element    name=通用
+    click Element    name=个人信息设置
+    click element    name=用户头像
+    click element    class=android.widget.FrameLayout
+    click element    id=com.android.gallery3d:id/btn_cancel
+    Close Application
+    [Teardown]    Run Keyword If Test Failed    Close Application
+
+A13_第一次注册成功时设置个人姓名
+    [Documentation]    预置条件:
+    ...
+    ...    1：用户成功注册
+    ...
+    ...    操作步骤:
+    ...
+    ...    "1：不设置名字，点击下一步
+    ...
+    ...    2：设置用户姓名
+    ...
+    ...    3：点击下一步，进入主会话界面
+    ...
+    ...    4：跳过第三步，点击返回键退出软件/结束进程
+    ...    "
+    ...
+    ...    预期结果:
+    ...
+    ...    "1：提示请设置姓名
+    ...
+    ...
+    ...    2：姓名设置成功
+    ...
+    ...
+    ...    3：进入主会话界面
+    ...
+    ...
+    ...    4：一键退回主页，再次进入软件为当前界面，结束进程后再进入为主会话界面"
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${APP}    automationName=appium
+    ...    appPackage=com.raycom.securesms    appActivity=org.thoughtcrime.securesms.RegistrationActivity
+    log    Test is running    DEBUG
+    Input Text    id=com.raycom.securesms:id/number    15828692608
+    Click Element    id=com.raycom.securesms:id/codeButton
+    click Element    id=com.raycom.securesms:id/menu_more
+    click Element    name=设置
+    click Element    name=通用
+    click Element    name=个人信息设置
+    click element    id=com.raycom.securesms:id/textView
+    : FOR    ${i}    IN RANGE    12
+    \    press keycode    67    #KEYCODE_DEL 退格键 67
+    input text    id=android:id/edit    ${newName}
+    click element    id=android:id/button1
+    Element Name Should Be    id=com.raycom.securesms:id/textView    ${newName}
+    Close Application
+    [Teardown]    Run Keyword If Test Failed    Close Application
+
+A16_保存未存入通讯录的联系人信息
+    [Documentation]    预置条件:
+    ...
+    ...    ”1：软件可正常使用 "
+    ...
+    ...    操作步骤：
+    ...
+    ...    “1：一个陌生的瑞信用户A发送消息给测试机1;
+    ...
+    ...    2：点击会话左侧头像，链接到系统通讯录，保存用户A联系人信息"；
+    ...
+    ...    预期结果：
+    ...
+    ...    "1：接收到消息;
+    ...
+    ...    2：成功链接到系统通讯录，保存成功；
+    ...
+    ...    3：软件通讯录上以及主页会话中显示存储的用户的姓名和头像"；
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${APP}    automationName=appium
+    ...    appPackage=com.raycom.securesms    appActivity=org.thoughtcrime.securesms.ConversationListActivity
+    click element    xpath=//android.widget.ListView[1]/android.widget.RelativeLayout[2]
+    click element    id=com.raycom.securesms:id/contact_photo
+    click element    id=com.android.contacts:id/temp_add_contact
+    input text    name=姓名    yangtingting    #目前版本有问题，对于添加了联系人后，不能立即刷新联系人显示
+    input text    name=公司    rtong
+    input text    name=职位    software engineering
+    click element    id=com.android.contacts:id/mSave
+    click element    id=android:id/action_bar_title
+    Page Should Contain Text    text=yangtingting    loglevel=WARN
+    close application
+    [Teardown]    Run Keyword If Test Failed    Close Application
+
+A23_选择不同联系人发送消息
+    [Documentation]    预期结果：
+    ...
+    ...    1：软件可正常使用
+    ...
+    ...    操作步骤:
+    ...
+    ...    "1：直接在通讯录中瑞信联系人中选择联系人发送消息
+    ...
+    ...    2：直接回复未存储联系人信息的瑞信用户"
+    ...
+    ...    预期结果:
+    ...
+    ...    "1：只有在收发双发都互存联系人的情况下可正常发送接收
+    ...
+    ...    2：不能给本机注册号码发送消息"
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${APP}    automationName=appium
+    ...    appPackage=com.raycom.securesms    appActivity=org.thoughtcrime.securesms.ConversationListActivity
+    click Element    id=com.raycom.securesms:id/menu_new_message
+    click Element    name=zhangsan
+    input text    id=com.raycom.securesms:id/embedded_text_editor    ${testtext60}
+    click Element    id=com.raycom.securesms:id/send_button
+    click element    class=android.widget.LinearLayout
+    click element    name=TestGroups
+    input text    id=com.raycom.securesms:id/embedded_text_editor    ${testtext60}
+    click Element    id=com.raycom.securesms:id/send_button
+    sleep    10s    check for the status of app
+    close application
+    [Teardown]    Run Keyword If Test Failed    Close Application
+
+A24_编辑不同字段的信息
+    [Documentation]    用例标题：
+    ...
+    ...    “编辑不同字段的信息”
+    ...
+    ...    操作步骤:
+    ...
+    ...    "1：编辑一条包含60个字母，汉字，数字、特殊字符以及附件的信息
+    ...
+    ...    2：编辑一条超过350个字母，汉字，数字、特殊字符以及附件的信息
+    ...
+    ...    3：编辑一条空消息，仅包含空格和回车"
+    ...
+    ...    预期结果：
+    ...
+    ...    "1：消息显示与编辑一致
+    ...
+    ...    2：超出限制350个字符后，无法再继续输入
+    ...
+    ...    3：提示消息为空
+    ...
+    ...    "
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${APP}    automationName=appium
+    ...    appPackage=com.raycom.securesms    appActivity=org.thoughtcrime.securesms.ConversationListActivity
+    click Element    id=com.raycom.securesms:id/menu_new_message
+    click Element    id=com.raycom.securesms:id/contact_photo_image
+    input text    id=com.raycom.securesms:id/embedded_text_editor    ${testtext60}
+    click Element    id=com.raycom.securesms:id/send_button
+    input text    id=com.raycom.securesms:id/embedded_text_editor    ${testtext350}
+    click Element    id=com.raycom.securesms:id/send_button
+    Close Application
+    [Teardown]    Run Keyword If Test Failed    Close Application
+
+A28_注册后在网络断开时发送消息
+    [Documentation]    预置条件:
+    ...
+    ...    "1：软件可正常使用
+    ...
+    ...    2：所有测试机刚注册进入软件
+    ...
+    ...    3：网络断开"
+    ...
+    ...
+    ...    操作步骤：
+    ...
+    ...    "1：测试机1发送大量发送文本消息，图片等附件消息给测试机2和3
+    ...
+    ...    2：恢复网络后点击重发"
+    ...
+    ...
+    ...    预期结果：
+    ...
+    ...
+    ...    1：无网络状态下无法发送失败,恢复网络后可重发成功
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${APP}    automationName=appium
+    ...    appPackage=com.raycom.securesms    appActivity=org.thoughtcrime.securesms.ConversationListActivity
+    Set Network Connection Status    1
+    click Element    id=com.raycom.securesms:id/menu_new_message
+    click Element    id=com.raycom.securesms:id/contact_photo_image
+    input text    id=com.raycom.securesms:id/embedded_text_editor    ${testtext60}
+    click Element    id=com.raycom.securesms:id/send_button
+    sleep    5s
+    Page should contain Text    发送失败，请检查网络连接    DEBUG
+    Set Network Connection Status    6
+    close application
+    [Teardown]    Run Keyword If Test Failed    Close Application
+
+A44_创建群组
+    [Documentation]    预置条件:
+    ...
+    ...    1：软件可正常使用 "
+    ...
+    ...    操作步骤:
+    ...
+    ...
+    ...    1：点击新建群群组
+    ...
+    ...    2：不添加其余群成员
+    ...
+    ...    3：添加群成员
+    ...
+    ...    a）添加互存号码的联系人
+    ...
+    ...    b）添加对方未存个人号码的联系人
+    ...
+    ...    "
+    ...    预期结果:
+    ...
+    ...    "1：不添加其余群成员时无法成功创建成功;
+    ...
+    ...    2：只有添加双方互存号码的联系人可成功，新建群组，群头像为默认头像，群名称为未命名群组，群更新消息可及时同步推送到群成员;"
+    [Setup]
+    @{groups}    Create List    zhangsan    dengshaohu    yangtingting
+    ${localAddress}    Get Local Address
+    ${random}=    Evaluate    random.randint(0, sys.maxint)    random,sys
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${APP}    automationName=appium
+    ...    appPackage=com.raycom.securesms    appActivity=org.thoughtcrime.securesms.ConversationListActivity
+    click Element    id=com.raycom.securesms:id/menu_more
+    click Element    name=发起群聊
+    click Element    id=com.raycom.securesms:id/contacts_button
+    : FOR    ${i}    IN    @{groups}
+    \    click element    name=${i}
+    click element    id=com.raycom.securesms:id/menu_selection_finished
+    input text    id=com.raycom.securesms:id/group_name    TestGroups${random}
+    click Element    id=com.raycom.securesms:id/menu_create_group
+    close Application
+    [Teardown]    Run Keyword If Test Failed    Close Application
+
+A51_注册后在网络链接正常时发送群消息
+    [Documentation]    前置条件：
+    ...
+    ...    "1：软件可正常使用
+    ...
+    ...    2：群状态正常，包含多个群成员"
+    ...
+    ...    操作步骤:
+    ...
+    ...    "1：测试机1在不同群中发送大量发送文本消息，图片等附件消息
+    ...
+    ...    2：发送过程中进程终止
+    ...
+    ...    3：发送过程中充电插拔、闹钟响铃、来电拒听、来电接听、退出、播放音乐"
+    ...
+    ...    预期结果：
+    ...
+    ...    "1：消息可正常发送
+    ...
+    ...    2：进程终止后再次进入可重新发送发送失败的消息
+    ...
+    ...    3：消息发送不被打扰
+    ...
+    ...    4：发送消息性能体验与同类产品可保持一致"
+    ${localAddress}    Get Local Address
+    ${groupNum}=    Evaluate    random.randint(0, 10000)    random
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${APP}    automationName=appium
+    ...    appPackage=com.raycom.securesms    appActivity=org.thoughtcrime.securesms.ConversationListActivity
+    ${network_status}    Get Network Connection Status
+    log    ${network_status}
+    run keyword if    ${network_status}<2    Set Network Connection Status    6    log    Networks have opened successfully!
+    ...    ELSE    log    Network connections normal.
+    click Element    id=com.raycom.securesms:id/menu_more
+    click Element    id=android:id/title
+    input text    id=com.raycom.securesms:id/group_name    TestGroups${groupNum}
+    click Element    id=com.raycom.securesms:id/contacts_button
+    click Element    id=com.raycom.securesms:id/check_box
+    click Element    id=com.raycom.securesms:id/menu_selection_finished
+    click Element    id=com.raycom.securesms:id/menu_create_group
+    input text    id=com.raycom.securesms:id/embedded_text_editor    This is a test for testgroup.
+    click element    id=com.raycom.securesms:id/send_button
+    Page Should Not Contain Text    发送失败，请检查网络连接    DEBUG
+    Close Application
+    [Teardown]    Run Keyword If Test Failed    Close Application
+
+A60_图片传输
+    [Documentation]    预置条件:
+    ...
+    ...    1：软件可正常使用
+    ...
+    ...    操作步骤:
+    ...
+    ...    "1：在安全消息、群聊中发送一张图片
+    ...
+    ...    2：在安全消息中一次发送多张图片
+    ...
+    ...    3：混合文字、表情、录音、拍照、名片附件发送
+    ...
+    ...    4：编辑过程中充电插拔、闹钟响铃、来电拒听、来电接听、退出、播放音乐"
+    ...    预期结果:
+    ...
+    ...    在消息发送接收的各种场景下，附件传输成功，无损坏，无遗漏，无乱序，内容格式保持一致
+    ${localAddress}    Get Local Address
+    #目前测试实际一次发送消息无法混合发送图片文字
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${APP}    automationName=appium
+    ...    appPackage=com.raycom.securesms    appActivity=org.thoughtcrime.securesms.ConversationListActivity
+    click Element    id=com.raycom.securesms:id/menu_new_message
+    click Element    id=com.raycom.securesms:id/contact_photo_image
+    click Element    id=com.raycom.securesms:id/menu_attachment_setting
+    click Element    name=图片
+    ${pageContent}    get source
+    log    ${pageContent}
+    click element    class=android.widget.LinearLayout
+    click element    class=android.widget.LinearLayout
+    click element    class=android.widget.FrameLayout
+    click element    class=android.widget.FrameLayout
+    #click element    id=com.raycom.securesms:id/emoji_toggle    #目前无法点击表情
+    #click element    xpath=//android.widget.ImageView[1]
+    input text    id=com.raycom.securesms:id/embedded_text_editor    ${testtext60}
+    click Element    class=android.widget.FrameLayout
+    click Element    id=com.raycom.securesms:id/send_button
+    click Element    id=com.raycom.securesms:id/menu_attachment_setting
+    click element    name=拍照
+    click element    id=com.android.camera:id/shutter_button_icon
+    sleep    5s    wait for taking photos completely
+    click element    id=com.android.camera:id/btn_done
+    click Element    id=com.raycom.securesms:id/menu_attachment_setting
+    click element    name=名片
+    click element    name=zhangsan
+    click Element    id=com.raycom.securesms:id/send_button
+    close application
+    [Teardown]    Run Keyword If Test Failed    Close Application
+
+A65_截屏开关关闭
+    [Documentation]    预置条件:
+    ...
+    ...    1：软件可正常使用
+    ...
+    ...    操作步骤：
+    ...
+    ...    1：取消该开关，对会话界面，联系人界面截屏
+    ...
+    ...    预期结果:
+    ...
+    ...    1：取消该开关，对会话界面，联系人界面可成功截屏
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${APP}    automationName=appium
+    ...    appPackage=com.raycom.securesms    appActivity=org.thoughtcrime.securesms.ConversationListActivity
+    click Element    id=com.raycom.securesms:id/menu_more
+    click Element    name=设置
+    click Element    name=安全
+    click Element    id=com.raycom.securesms:id/screen_security_imageview    #打开或关闭截屏开关
+    Go back
+    Go back
+    ${varTime}    Get Time    epoch
+    sleep    5s
+    Capture Page Screenshot    filename=${varTime}.log
+    sleep    5s
+    click Element    id=com.raycom.securesms:id/menu_new_message
+    ${varTime}    Get Time    epoch
+    sleep    5s
+    Capture Page Screenshot    filename=${varTime}.log
+    close application
+    [Teardown]    Run Keyword If Test Failed    Close Application
+
+A76_更换个人头像姓名
+    [Documentation]    1：软件可正常使用
+    ...
+    ...    "1：更换个人头像姓名
+    ...
+    ...    2：删除进程查看修改后的头像以及姓名是否一致
+    ...
+    ...    3：重新注册后查看修改后的头像以及姓名是否一致
+    ...
+    ...    "1：头像姓名与最新设置保持一致
+    ${localAddress}    Get Local Address
+    ${num}=    Evaluate    random.randint(0, 99999999)    random
+    ${newName}    Set variable    1010${num}
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${MiyuAPP}    automationName=appium
+    ...    appPackage=com.raycom.securesms    appActivity=org.thoughtcrime.securesms.ConversationListActivity
+    click Element    id=com.raycom.securesms:id/menu_more
+    click Element    name=设置
+    click Element    name=通用
+    click Element    name=个人信息设置
+    click element    name=用户头像
+    click element    class=android.widget.FrameLayout
+    ${context}    Get Current Context
+    log    ${context}
+    click element    id=com.android.gallery3d:id/btn_cancel
+    click element    id=com.raycom.securesms:id/textView
+    : FOR    ${i}    IN RANGE    12
+    \    press keycode    67    #KEYCODE_DEL 退格键 67
+    input text    id=android:id/edit    ${newName}
+    click element    id=android:id/button1
+    Element Name Should Be    id=com.raycom.securesms:id/textView    ${newName}
+    Close Application
+    [Teardown]    Run Keyword If Test Failed    Close Application
+
+A79_网络链接正常时检查新版本
+    [Documentation]    预置条件
+    ...
+    ...    "1：软件可正常使用
+    ...
+    ...    2：网络链接正常"
+    ...
+    ...    操作步骤
+    ...
+    ...    "1：检查新版本
+    ...
+    ...
+    ...    2：点击下载
+    ...
+    ...
+    ...    3：一键式覆盖安装"
+    ...
+    ...    预期结果
+    ...
+    ...    "1：返回最新版本号，以及相关更新信息
+    ...
+    ...
+    ...    2：成功下载
+    ...
+    ...
+    ...    3：安装成功，安装后检查到版本号与最新版本一致"
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${APP}    automationName=appium
+    ...    appPackage=com.raycom.securesms    appActivity=org.thoughtcrime.securesms.ConversationListActivity
+    ${network_status}    Get Network Connection Status
+    log    ${network_status}
+    run keyword if    ${network_status}<2    Set Network Connection Status    6    log    Networks have opened successfully!
+    ...    ELSE    log    Network connections normal.
+    click Element    id=com.raycom.securesms:id/menu_more
+    click Element    name=设置
+    click Element    name=关于
+    click Element    name=版本更新
+    sleep    5s
+    Page should contain Text    密语 1.2.2    DEBUG
+    Page should contain Text    2015/9/10    DEBUG
+    close application
+    [Teardown]    Run Keyword If Test Failed    Close Application
+
+A86_分享功能
+    [Documentation]    预置条件：
+    ...
+    ...    1：软件可正常使用
+    ...
+    ...    操作步骤：
+    ...
+    ...    "1：点击菜单键，选择分享
+    ...
+    ...    2：逐个选择下拉菜单中应用进行推送
+    ...
+    ...    3：从推送中的链接可成功安装APP"
+    ...
+    ...    预期结果：
+    ...
+    ...    功能正常
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${APP}    automationName=appium
+    ...    appPackage=com.raycom.securesms    appActivity=org.thoughtcrime.securesms.ConversationListActivity
+    click Element    id=com.raycom.securesms:id/menu_more
+    click Element    name=分享
+    click Element    name=密语
+    click Element    name=zhangsan
+    click Element    id=com.raycom.securesms:id/send_button
+    Close Application
+    [Teardown]    Run Keyword If Test Failed    Close Application
+
+*** Keywords ***
+Capture Crash Detail
+    ${crash}    Page Should Contain Text    很抱歉，“密语”已停止运行。    DEBUG
+    log    ${crash}
+    run keyword if    ${crash}==None    click element    name=报告
+    ...    ELSE    log    it's normal.
+    hide keyboard
+    sleep    5s
+    Capture Page Screenshot

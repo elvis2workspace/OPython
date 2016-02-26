@@ -1,0 +1,20 @@
+*** Settings ***
+Library           AppiumLibrary
+
+*** Variables ***
+${REMOTE_URL}     http://localhost:4723/wd/hub
+${PLATFORM_NAME}    Android
+${PLATFORM_VERSION}    4.4
+${DEVICE_NAME}    NX505J
+${APP}            u'D:\apps\ContactManager\ContactManager.apk'
+
+*** Keywords ***
+add new contact
+    [Arguments]    ${contact_name}    ${contact_phone}    ${contact_email}
+    Open Application    ${REMOTE_URL}    platformName=Android    platformVersion=4.3    deviceName=NX505J    app=D:\/apps\/ContactManager\/ContactManager.apk    automationName=appium
+    ...    appPackage=com.netease.qa.orangedemo    appActivity=MainActivity
+    Click Element    accessibility_id=Add Contact
+    Input Text    id=com.example.android.contactmanager:id/contactNameEditText    ${contact_name}
+    Input Text    id=com.example.android.contactmanager:id/contactPhoneEditText    ${contact_phone}
+    Input Text    id=com.example.android.contactmanager:id/contactEmailEditText    ${contact_email}
+    Click Element    accessibility_id=Save

@@ -1,0 +1,12 @@
+*** Settings ***
+Library           AppiumLibrary    run_on_failure=Log Source
+
+*** Variables ***
+${REMOTE_URL}     http://localhost:4723/wd/hub
+
+*** Keywords ***
+TestStart
+    [Documentation]    just demo
+    Open Application    ${REMOTE_URL}    platformName=Android     platformVersion=Android    deviceName=NX505J    app=r'D:\apps\ContactManager\ContactManager.apk'    automationName=appium
+    ...    appPackage=com.netease.qa.orangedemo    appActivity=MainActivity
+    Capture Page Screenshot

@@ -1,0 +1,1760 @@
+*** Settings ***
+Library           AppiumLibrary
+Library           CustomLibrary
+Resource          test_android_contact_resource.txt
+
+*** Test Cases ***
+密码卡开机登录：正确的简单口令登录
+    [Documentation]    预置条件:
+    ...    1、"密码卡已成功激活，并且成功插入手机内存卡卡槽；
+    ...    2、ECM已设置开机自启动。"
+    ...
+    ...
+    ...    操作步骤：
+    ...    "1、用户打开安全手机终端，进入密码卡登录界面；
+    ...    2、 输入正确的密码卡简单口令。"
+    ...
+    ...    预期结果：
+    ...    "1、密码卡登录界面显示正常；
+    ...    2、 密码卡登录成功，成功进入ECM加密功能已启用的界面；"
+    [Tags]    用户登录解锁
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Close Application
+
+密码卡开机登录：错误的简单口令登录
+    [Documentation]    预置条件:"1、密码卡被成功激活，并且成功插入手机内存卡卡槽；
+    ...    2、ECM已设置开机自启动。"
+    ...
+    ...    操作步骤："1. 用户打开安全手机终端，进入密码卡登录界面
+    ...    2. 输入错误的密码卡简单口令"
+    ...
+    ...    预期结果： "1. 密码卡登录界面UI显示正常
+    ...    2. 提示密码卡口令错误，禁止用户登录。
+    ...    "
+    [Tags]    用户登录解锁
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Capture Page Screenshot    loginfailed
+    sleep    10s
+    Page Should Not Contain Text    加密功能已启用
+    Page Should Contain Text    请输入密码卡口令
+    sleep    10s
+    Close Application
+
+密码卡开机登录：正确的复杂口令登录
+    [Documentation]    预置条件："密码卡被成功激活，并且成功插入手机内存卡卡槽。
+    ...    ECM已设置开机自启动；"
+    ...
+    ...    操作步骤：
+    ...    "1. 用户打开安全手机终端;
+    ...    2. 在登录界面上输入正确的密码卡复杂口令;"
+    ...
+    ...    预期结果：
+    ...    "1. 手机开机后跳转到密码卡登录界面，界面显示正常,符合UI设计;
+    ...    2. 用户能成功登录，并且进入ECM加密功能已启动界面；"
+    [Tags]    用户登录解锁
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    Wait Until Page Contains    请输入旧口令    10s    operation failed!
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    ${OldVpwd}
+    Page Should Contain Text    使用复杂口令
+    Click Element    id=com.cetcs.ecmapplication:id/simpleTV
+    Input Password    id=com.cetcs.ecmapplication:id/mComplexEditText    ${NewVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/mComplexEditText
+    ${pram1}    Evaluate    os.system('adb shell input tap 960 1700')    os
+    log    ${pram1}
+    Page Should Contain Text    请再次输入新口令
+    Input Password    id=com.cetcs.ecmapplication:id/mComplexEditText    ${NewVpwd}
+    ${pram1}    Evaluate    os.system('adb shell input tap 960 1700')    os
+    log    ${pram1}
+    Wait Until Page Contains    修改口令成功    10s    change password failed!
+    Click Element    id=com.cetcs.ecmapplication:id/relogoin
+    Wait Until Page Contains    加密功能已启用    15s    relogin failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    Close Application
+    sleep    30s
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${NewVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    Wait Until Page Contains    请输入旧口令    10s    operation failed!
+    Input Password    id=id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    ${NewVpwd}
+    ${pram1}    Evaluate    os.system('adb shell input tap 960 1700')    os
+    log    ${pram1}
+    Click Element    id=com.cetcs.ecmapplication:id/simpleTV
+    Input Password    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    ${OldVpwd}
+    Wait Until Page Contains    修改口令成功    10s    change password failed!
+    Click Element    id=com.cetcs.ecmapplication:id/relogoin
+    Wait Until Page Contains    加密功能已启用    10s    relogin failed! please check the password.
+    Close Application
+
+密码卡开机登录：错误的复杂口令登录
+    [Documentation]    预置条件:"密码卡被成功激活，并且成功插入手机内存卡卡槽；
+    ...    ECM已设置开机自启动；"
+    ...
+    ...    操作步骤："1. 用户打开安全手机终端
+    ...    2. 在登录界面上输入错误的密码卡复杂口令"
+    ...
+    ...    预期结果：
+    ...    "1. 开机后进入密码卡登录界面，界面样式显示正常，符合UI设计
+    ...    2. 提示口令错误，不允许用户登录"
+    [Tags]    用户登录解锁
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    Wait Until Page Contains    请输入旧口令    10s    operation failed!
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    ${OldVpwd}
+    Page Should Contain Text    使用复杂口令
+    Click Element    id=com.cetcs.ecmapplication:id/simpleTV
+    Input Password    id=com.cetcs.ecmapplication:id/mComplexEditText    ${NewVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/mComplexEditText
+    ${pram1}    Evaluate    os.system('adb shell input tap 960 1700')    os
+    log    ${pram1}
+    Page Should Contain Text    请再次输入新口令
+    Input Password    id=com.cetcs.ecmapplication:id/mComplexEditText    ${NewVpwd}
+    ${pram1}    Evaluate    os.system('adb shell input tap 960 1700')    os
+    log    ${pram1}
+    Wait Until Page Contains    修改口令成功    10s    change password failed!
+    Click Element    id=com.cetcs.ecmapplication:id/relogoin
+    Wait Until Page Contains    加密功能已启用    15s    relogin failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    Close Application
+    sleep    30s
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    volte2015    #错误的复杂口令
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Page Should Not Contain Text    加密功能已启用    #建立安全通道失败
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/mComplexEditText
+    Page Should Contain Text    请输入密码卡口令    #提示口令错误，不允许用户登录
+    sleep    10s
+    Close Application
+
+APP登录：建立安全通道
+    [Documentation]    预置条件:
+    ...    "1、被测终端（手机）已经准备就绪（已插入TF卡、SIM卡）；
+    ...    2、TF卡与当前SIM卡成功绑定。 "
+    ...
+    ...    操作步骤："1. 打开APP，输入正确的登录口令；
+    ...    2. 点击下拉系统通知栏，检查APP登录状态显示。"
+    ...
+    ...    预期结果："1. 成功进入安全通道建立界面；
+    ...    2. 系统通知栏正确显示当前密码卡状态。（待完善）
+    ...    "
+    [Tags]    用户登录解锁
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+
+APP登录：加密功能启用
+    [Documentation]    预置条件:
+    ...    "1、被测终端（手机）已经准备就绪（已插入TF卡、SIM卡）；
+    ...    2、TF卡与当前SIM卡成功绑定。 "
+    ...
+    ...    操作步骤: "1. 打开APP，输入正确的登录口令；
+    ...    2. 安全通道成功建立，进入加密功能启用中；
+    ...    3. 点击下拉系统通知栏，检查APP登录状态显示；
+    ...    4. 点击修改口令；
+    ...    5. 点击销毁密码卡；
+    ...    6. 点击安全检查；"
+    ...
+    ...    预期结果: "1. 成功进入安全通道建立界面；
+    ...    2. 成功进入加密功能启用界面：
+    ...    1、提示加密功能启用中；
+    ...    2、如果加密功能启用成功则显示已绑定的手机号码；
+    ...    3、如果加密功能异常则跳转到异常提示界面；
+    ...    4、该界面提供三个功能：修改口令、销毁密码卡、安全检查。
+    ...    3. 系统通知栏正确显示当前状态：加密功能启用中；
+    ...    4. 成功跳转到修改口令界面；
+    ...    5. 成功跳转到密码卡销毁界面；
+    ...    6. 成功跳转到安全检查界面。"
+    [Tags]    用户登录解锁
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!    #建立安全通道
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/xiaohuiLayout
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/anquanLayout
+    #系统通知栏正确显示当前状态：加密功能启用中；
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/inputpinTV
+    Page Should Contain Text    请输入旧口令
+    Go Back
+    Go Back
+    Click Element    id=com.cetcs.ecmapplication:id/xiaohuiLayout
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/destroy_tv_mimakahuihou
+    Go Back
+    Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
+    Wait Until Page Contains    已是最新版本
+    Click Element    id=com.cetcs.ecmapplication:id/finishTV
+
+密码卡异常，启动APP：密码卡已锁定(输入PIN码，解锁后登录APP）
+    [Documentation]    预置条件："密码卡因连续输入6次口令被锁定，将已锁定的密码卡插入手机内存卡卡槽
+    ...    手机已正常开机，并且成功进入手机桌面
+    ...    已拨打10086获取该密码卡的PIN码
+    ...    密码卡异常提示默认设置为不再提示"
+    ...
+    ...    操作步骤：
+    ...    "1. 点击启动APP
+    ...    2. 点击“输入PIN码”
+    ...    3. 输入PIN码
+    ...    4. 在修改口令界面上输入新口令后，然后再重复确认一次
+    ...    5. 用户将终端手机重启
+    ...    6. 点击APP"
+    ...
+    ...    预期结果:
+    ...    "1. 进入APP “开机异常提示-已锁定”界面，界面样式符合UI设计
+    ...    2. 系统跳转到PIN码输入界面，输入界面符合UI设计
+    ...    3. PIN码成功输入，并且验证成功，提示密码卡已被解锁，直接跳转到修改口令界面
+    ...    4. 密码修改成功
+    ...    5. 重启后成功进入手机桌面
+    ...    6. 进入APP登录界面，输入修改后的口令，APP能正常登录"
+    [Tags]    用户登录解锁
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!    #建立安全通道
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Close Application
+
+APP登录：勾选了记住登录口令
+    [Documentation]    预置条件:
+    ...    "1、被测终端（手机）已经准备就绪（已插入TF卡、SIM卡）；
+    ...    2、TF卡与当前SIM卡成功绑定。"
+    ...
+    ...    操作步骤:
+    ...    "1. 开启被测应用，在登录界面勾选记住口令或者进入安全设置开启免口令登录；
+    ...    2. 在APP中通过功能按钮退出，再重新打开APP；
+    ...    3. 在APP中通过手机返回键退出，再重新打开APP。
+    ...    4. 重启手机，再进入APP；"
+    ...
+    ...    预期结果： "1. 成功设置；
+    ...    2. 直接跳过登录口令输入界面，成功进入APP主界面：正在建立安全通道；
+    ...    3. 直接跳过登录口令输入界面，成功进入APP主界面：正在建立安全通道；
+    ...    4. 直接跳过登录口令输入界面，成功进入APP主界面：正在建立安全通道。
+    ...    "
+    [Tags]    用户登录解锁
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Go Back
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!    #建立安全通道
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Go Back
+    Go Back
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    #在APP中通过功能按钮退出，再重新打开APP；
+    #重启手机再进入app
+    Close Application
+
+APP登录：开机正常登录
+    [Documentation]    预置条件:
+    ...    "1、被测终端（手机）已经准备就绪（已插入TF卡、SIM卡）；
+    ...    2、TF卡与当前SIM卡成功绑定；
+    ...    3、APP未设置勾选记住登录口令；
+    ...    4、APP未设置开机自启动。
+    ...
+    ...    需求描述
+    ...    开机后，首次运行管理APP需验证用户身份，需弹出登录界面；
+    ...    登录成功后，用户更换TF密码卡，需用户重新登录后才能正常使用TF密码卡。
+    ...
+    ...    验收标准
+    ...    1、重启手机后，首次运行管理APP，弹出登录界面，输入正确口令后可正常登录；
+    ...    2、成功登录后，拔出TF卡，插入另一张TF卡（口令和第一张不一致），运行管理APP，需弹出登录界面，输入正确口令后可正常登录；"
+    ...
+    ...    操作步骤: "1. 打开APP；
+    ...    2. 输入正确的登录口令，点击确定；
+    ...    3. 安全通道成功建立，进入加密功能启用中；
+    ...    4. 加密功能启用成功；"
+    ...
+    ...    预期结果： "1. 成功进入APP登录口令输入界面：
+    ...    1、键盘允许输入数字、字母、特殊字符；
+    ...    3、登录界面提供记住口令、忘记口令。
+    ...    2. 成功登录APP，进入安全通道建立界面；
+    ...    3. 检查加密功能启用过程：
+    ...    1、界面提示加密功能启用中；
+    ...    2、该界面提供三个功能：修改口令、销毁密码卡、安全检查；
+    ...    3、界面有无任何图形提示加密功能的检查等待过程；
+    ...    4. 界面显示“已绑定XXXX（手机号码）”。
+    ...    "
+    [Tags]    用户登录解锁
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Close Application
+
+密码卡异常，启动APP：密码卡已锁定(拨打10086获取PIN码）
+    [Documentation]    预置条件:
+    ...    "密码卡因连续输入6次口令被锁定，将已锁定的密码卡,sim卡插入手机内存卡卡槽
+    ...    密码卡异常提示默认设置为不再提示
+    ...    手机已正常开机，并且成功进入手机桌面"
+    ...
+    ...    操作步骤： "1. 点击启动APP
+    ...    2. 点击“拨打10086，获取PIN码”
+    ...
+    ...    预期结果:
+    ...    "1. 进入APP “开机异常提示-已锁定”界面，界面样式符合UI设计
+    ...    2. 跳过加密功能，进入手机普通SIM卡拨打10086流程，并且能正常接通，联系客服获取PIN码
+    ...    "
+    [Tags]    用户登录解锁(#634)
+    #暂不实现
+
+密码卡异常，启动APP：密码卡已锁定(输入PIN码界面）
+    [Documentation]    预置条件:
+    ...    "密码卡因连续输入6次口令被锁定，将已锁定的密码卡插入手机内存卡卡槽
+    ...    已拨打10086获取该密码卡的PIN码
+    ...    手机已正常开机，并且成功进入手机桌面
+    ...    密码卡异常提示默认设置为不再提示"
+    ...
+    ...    操作步骤："1. 点击启动APP；2. 点击“输入PIN码；”
+    ...
+    ...    "预期结果： "1. 进入APP “开机异常提示-已锁定”界面，界面样式符合UI设计
+    ...    2. 系统跳转到输入PIN码界面，界面UI符合UI设计
+    ...    "
+    [Tags]    用户登录解锁(#634)
+    #暂不实现
+
+手机号码绑定：绑定流程
+    [Documentation]    预置条件：
+    ...    "1、被测终端（手机）已经准备就绪；
+    ...    2、TF密码卡、SIM卡已经插入；
+    ...    3、手机号码已经开通加密功能；
+    ...    4、成功进入手机号码绑定界面。"
+    ...
+    ...    操作步骤：
+    ...    "1. 插入与当前TF卡绑定号码不一致的SIM卡；
+    ...    2. 点击访问并登录被测应用；
+    ...    3. 在加密功能启用界面检测到手机卡已更换，点击重新绑定；
+    ...    4. 输入正确的手机号码，点击下一步；
+    ...    5. 点击返回；
+    ...    6. 输入正确的手机号码，点击下一步；
+    ...    7. 点击发送验证码；
+    ...    8. 输入正确的验证码，点击确定；
+    ...    9. 点击返回；"
+    ...
+    ...    预期结果："1. 成功插入；
+    ...    2. 成功登录，进入加密功能启用界面；
+    ...    3. 成功进入绑定手机界面；
+    ...    4. 成功进入验证码输入界面；
+    ...    5. 成功返回绑定手机界面；
+    ...    6. 成功进入验证码输入界面；
+    ...    7. 输入的手机号码成功接收到服务器发送的验证码；
+    ...    8. 提示手机号码与密码卡成功绑定；
+    ...    9. 返回失败。
+    ...    "
+    [Tags]    手机号绑定(#635)
+    #需要解绑定手机号
+
+手机号码绑定：输入正确的手机号码绑定
+    [Documentation]    预置条件："1、被测终端（手机）已经准备就绪；
+    ...    2、TF密码卡、SIM卡已经插入；
+    ...    3、手机号码已经开通加密功能；
+    ...    4、成功进入手机号码绑定界面。"
+    ...
+    ...    操作步骤："1. 输入正确的手机号码（已经开通加密功能）：
+    ...    当前插入的SIM卡号；
+    ...    2. 点击下一步；
+    ...    3. 输入服务器发送的验证码，点击确定；"
+    ...
+    ...    预期结果："1. 成功输入并正确显示；
+    ...    2. 成功进入验证码输入界面；
+    ...    输入的手机号码成功收取到服务器发送的验证码；
+    ...    3. 手机号码与密码卡成功绑定。
+    ...    "
+    [Tags]    手机号绑定(#635)
+
+手机号码绑定：输入错误的手机号码绑定
+    [Documentation]    预置条件："1、被测终端（手机）已经准备就绪；
+    ...    2、TF密码卡、SIM卡已经插入；
+    ...    3、成功进入手机号码绑定界面。"
+    ...
+    ...    操作步骤：
+    ...    "1. 输入不存在的手机号码，点击下一步；
+    ...    2. 输入手机号码不满足位数，点击下一步；
+    ...    3. 输入正确的手机号码但未开通加密功能，点击下一步；
+    ...    4. 输入已经绑定其他TF卡的手机号码，点击下一步；
+    ...    5. 不输入，点击下一步；"
+    ...
+    ...    预期结果："1. 提示手机号码输入错误，要求重新输入；
+    ...    2. 下一步按钮置灰，不可操作；
+    ...    3. 手机号码能正常接收到验证码的信息，输入验证码后，点击完成按钮，系统进入手机号码绑定失败的界面，提示该手机号码未开通加密功能；
+    ...    4. 提示该号码已经绑定其他TF卡，不能再次绑定。（根据需求修改）
+    ...    5. 下一步按钮置灰，不可操作。"
+    [Tags]    手机号绑定(#635)
+
+手机号码绑定：输入正确的验证码
+    [Documentation]    预置条件；"1、被测终端（手机）已经准备就绪；
+    ...    2、TF密码卡、SIM卡已经插入；
+    ...    3、成功进入手机号码绑定流程；
+    ...    4、当前为绑定手机号界面。"
+    ...
+    ...    操作步骤："1. 输入正确的手机号码，点击下一步；
+    ...    2. 输入正确的验证码，点击确定；"
+    ...
+    ...    预期结果："1. 1、成功进入验证码输入界面；
+    ...    2、输入的手机号码成功收取到服务器发送的验证码；
+    ...    2. 绑定成功，提示密码卡初始化成功，点击“完成”，进入加密功能启用中界面
+    ...    "
+    [Tags]    手机号绑定(#635)
+
+手机号码绑定：输入错误的验证码
+    [Documentation]    预置条件:"1、被测终端（手机）已经准备就绪；
+    ...    2、TF密码卡、SIM卡已经插入；
+    ...    3、成功进入手机号码绑定界面；
+    ...    4、当前为绑定手机号界面。"
+    ...
+    ...    操作步骤：
+    ...    "1. 输入正确的手机号码，点击下一步；
+    ...    2. 输入不足位数和超出位数的验证码，点击确定；
+    ...    3. 输入错误的验证码，点击确定；
+    ...    4. 输入已验证过的验证码，点击确定；
+    ...    5. 输入其他非数字内容；"
+    ...
+    ...    预期结果：
+    ...    "1. 成功进入验证码输入界面；
+    ...    2、输入的手机号码成功收取到服务器发送的验证码；
+    ...    2. 确定置灰，在页面中央弹出“验证码错误”的提示，并且60秒后重发按钮变为可点击，文字为“重发”；
+    ...    3. 绑定失败，在页面中央弹出“验证码错误”的提示，并且60秒后重发按钮变为可点击，文字为“重发”；
+    ...    4. 绑定失败，在页面中央弹出“验证码错误”的提示，并且60秒后重发按钮变为可点击，文字为“重发”；
+    ...    5. 不允许输入。"
+    [Tags]    手机号绑定(#635)
+
+手机号码绑定：重发验证码
+    [Documentation]    预置条件: "1、被测终端（手机）已经准备就绪；
+    ...    2、TF密码卡、SIM卡已经插入；
+    ...    3、成功进入手机号码绑定流程；
+    ...    4、当前为绑定手机号界面。"
+    ...
+    ...    操作步骤："1. 输入正确的手机号码，点击下一步；
+    ...    2. 检查界面上对重发验证码的设计；
+    ...    3. 输入验证码，不点击确定，等待倒计时完成后，点击重发；
+    ...    4. 不输入验证码，等待60秒倒计时结束，再次点击重发；
+    ...    5. 不输入验证码，等待倒计时完成后，分别点击多次重发，点击次数在服务器限定的最大次数之内；
+    ...    6. 点击重发的次数超过服务器限定的最大次数；"
+    ...
+    ...    预期结果：
+    ...    "1. 1、成功进入验证码输入界面；
+    ...    2、输入的手机号码成功收取到服务器发送的验证码；
+    ...    2. 1、界面提示60秒后才能重发验证码且进行倒计时，倒计时进行期间，获取验证码按钮置灰不可用；
+    ...    2、倒计时完成后，重发按钮变为可用状态；
+    ...    3. 1、输入的手机号码成功收取到新的验证码；
+    ...    2、界面提示60秒后才能重发验证码且进行倒计时，倒计时进行期间，获取验证码按钮置灰不可用；
+    ...    3、倒计时完成后，重发按钮变为可用状态；
+    ...    4. 1、输入的手机号码成功收取到新的验证码；
+    ...    2、界面提示60秒后才能重发验证码且进行倒计时，倒计时进行期间，获取验证码按钮置灰不可用；
+    ...    3、倒计时完成后，重发按钮变为可用状态；
+    ...    5. 输入的手机号码成功收取到新的验证码；
+    ...    6. 发送失败，输入的手机号码不能收取到新的验证码。"
+    [Tags]    手机号绑定(#635)
+
+手机号绑定：验证码过期
+    [Documentation]    预置条件：
+    ...    "1、被测终端（手机）已经准备就绪；
+    ...    2、TF密码卡、SIM卡已经插入；
+    ...    3、成功进入手机号码绑定流程；
+    ...    4、当前为绑定手机号界面。"
+    ...
+    ...    操作步骤："1. 输入正确的手机号码，点击下一步；
+    ...    2. 检查验证码过期时间设计是否合理；
+    ...    3. 在过期时间内绑定手机号；
+    ...    4. 在过期时间点绑定手机号；
+    ...    5. 超过过期时间绑定手机号；
+    ...    6. 再次点击重新发送验证码；"
+    ...
+    ...    预期结果："1. 成功进入验证码输入界面；
+    ...    2、输入的手机号码成功收取到服务器发送的验证码；
+    ...    2. 验证码过期时间设计合理，符合常规（比如15~30分钟）；
+    ...    3. 成功绑定；
+    ...    4. 成功绑定；
+    ...    5. 绑定失败，提示验证码错误。
+    ...    6. 能成功重新发送号码，并且进入60秒倒计时。
+    ...    "
+    [Tags]    手机号绑定(#635)
+    #暂不实现
+
+修改密码卡口令：修改口令界面
+    [Documentation]    预置条件:
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面"
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上“修改口令"
+    ...
+    ...    预期结果：
+    ...    "1. 进入修改密码卡口令页面，页面样式符合UI设计(D01)"
+    [Tags]    修改密码卡口令(#636)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    go back
+    Wait Until Page Contains    请输入旧口令
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/inputpinTV
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple
+    Page Should Contain Text    忘记口令
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/buttonTV
+    sleep    10s
+    close application
+
+修改密码卡口令：成功修改口令（简单口令）
+    [Documentation]    预置条件:
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面 "
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上“修改口令”
+    ...    2. 在修改密码卡口令页面上输入正确的旧口令
+    ...    3. 输入新口令
+    ...    4. 再次输入新口令（与第一次输入保持一致）
+    ...    5. 点击重新登录进入APP登录界面，输入新口令"
+    ...
+    ...    预期结果：
+    ...    "1. 进入修改密码卡口令页面，页面样式符合UI设计(D01)
+    ...    2. 输入成功后，进入输入新口令界面，界面样式符合UI设计
+    ...    3. 输入完成后，进入再次输入新口令界面，界面样式符合UI设计
+    ...    4. 输入完成后，进入修改口令成功页面，界面样式符合UI设计
+    ...    5. APP能成功登录，成功进入手机安全模式主界面"
+    [Tags]    修改密码卡口令(#636)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    go back
+    Wait Until Page Contains    请输入旧口令    10s    change password operation failed!
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/inputpinTV
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple
+    Page Should Contain Text    忘记口令
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/buttonTV
+    sleep    10s
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    ${OldVpwd}
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    123457
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    123457
+    Wait Until Page Contains    修改口令成功    10s    change password failed!
+    Click Element    id=com.cetcs.ecmapplication:id/relogoin
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Close Application
+
+修改密码卡口令：使用复杂口令界面
+    [Documentation]    预置条件：
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面 "
+    ...
+    ...    操作步骤
+    ...    "1. 点击APP加密功能启用中界面上“修改密码卡口令”
+    ...    2. 在修改密码卡口令页面上输入正确的旧口令
+    ...    3. 点击“使用复杂口令”
+    ...
+    ...    预期结果：
+    ...    "1. 进入修改密码卡口令页面，页面样式符合UI设计
+    ...    2. 输入成功后，进入输入新口令界面，界面样式符合UI设计
+    ...    3. 进入设计密码卡口令-复杂口令页面，界面样式符合UI设计"
+    [Tags]    修改密码卡口令(#636)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    go back
+    Wait Until Page Contains    请输入旧口令    10s    change operation failed!
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/inputpinTV
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple
+    Page Should Contain Text    忘记口令
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/buttonTV
+    sleep    10s
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    ${OldVpwd}
+    Page Should Contain Text    使用复杂口令
+    Click Element    id=com.cetcs.ecmapplication:id/simpleTV
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/mComplexEditText
+    Page Should Not Contain Element    使用复杂口令
+    Page Should Contain Text    使用简单口令
+    go back
+    go back
+    Wait Until Page Contains    是否终止修改口令？    10s    operation failed!
+    Click Element    id=com.cetcs.ecmapplication:id/alertEnter
+    Page Should Contain Text    加密功能已启用
+    sleep    10s
+    Close Application
+
+修改密码卡口令：成功修改口令（复杂口令）
+    [Documentation]    预置条件：
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面 "
+    ...
+    ...    操作步骤："1. 点击APP加密功能启用中界面上“修改密码卡口令”
+    ...    2. 在修改密码卡口令页面上输入正确的旧口令
+    ...    3. 点击“使用复杂口令
+    ...    4. 输入复杂口令（字母与数字组合，大于等于8位，小于等于16位）
+    ...    5. 再次输入新口令（与第一次输入保持一致）
+    ...    6. 点击重新登录再次进入APP登录界面，使用新修改的复杂口令登录"
+    ...
+    ...    预期结果：
+    ...    "1. 进入修改密码卡口令页面，页面样式符合UI设计
+    ...    2. 输入成功后，进入输入新口令界面，界面样式符合UI设计
+    ...    3. 进入设计密码卡口令-复杂口令页面
+    ...    4. 输入完成后，进入再次输入新口令界面，界面样式符合UI设计
+    ...    5. 输入完成后，进入修改口令成功页面，界面样式符合UI设计
+    ...    6. APP能成功登录，进入手机安全模式主界面
+    ...    "
+    [Tags]    修改密码卡口令(#636)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    go back
+    Wait Until Page Contains    请输入旧口令
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/inputpinTV
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple
+    Page Should Contain Text    忘记口令
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/buttonTV
+    sleep    10s
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    ${OldVpwd}
+    Page Should Contain Text    使用复杂口令
+    Click Element    id=com.cetcs.ecmapplication:id/simpleTV
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/mComplexEditText
+    Page Should Not Contain Element    使用复杂口令
+    Page Should Contain Text    使用简单口令
+    Input Password    id=com.cetcs.ecmapplication:id/mComplexEditText    ${NewVpwd}
+    ${pram1}    Evaluate    os.system('adb shell input tap 960 1700')    os
+    log    ${pram1}
+    Page Should Contain Text    请再次输入新口令
+    Input Password    id=com.cetcs.ecmapplication:id/mComplexEditText    ${NewVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/mComplexEditText
+    ${pram1}    Evaluate    os.system('adb shell input tap 960 1700')    os
+    log    ${pram1}
+    Wait Until Page Contains    修改口令成功    10s    change password failed!
+    Click Element    id=com.cetcs.ecmapplication:id/relogoin
+    Wait Until Page Contains    加密功能已启用    15s    relogin failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    Close Application
+    #成功修改成复杂密码，并正常建立安全通道
+
+修改密码卡口令：修改口令两次输入不一致（简单口令）
+    [Documentation]    预置条件：
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面 "
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上“修改密码卡口令”
+    ...    2. 在修改密码卡口令页面上输入正确的旧口令
+    ...    3. 输入新口令
+    ...    4. 再次输入新口令，与第一次输入的口令不一致"
+    ...
+    ...    预期结果：
+    ...    "1. 进入修改密码卡口令页面，页面样式符合UI设计
+    ...    2. 输入成功后，进入输入新口令界面，界面样式符合UI设计
+    ...    3. 进入再次输入新口令界面，界面样式符合UI设计
+    ...    4. 系统提示输入口令不一致，请重新输入的提示信息，清空密码输入框，并且界面样式符合UI设计"
+    [Tags]    修改密码卡口令(#636)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    Wait Until Page Contains    请输入旧口令    10s    change password operation failed!
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/inputpinTV
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple
+    Page Should Contain Text    忘记口令
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/buttonTV
+    sleep    10s
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    ${OldVpwd}
+    Wait Until Page Contains    请输入新口令
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    123457    #简单密码两次不一致
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    123458
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/newPasswordErrorInfo    15s    operation failed!
+    Page Should Contain Text    口令不匹配，请重新输入
+    Page Should Contain Text    请再次输入新口令
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple
+    go back
+    go back
+    Wait Until Page Contains    是否终止修改口令？    10s    operation failed!
+    Click Element    id=com.cetcs.ecmapplication:id/alertEnter
+    Page Should Contain Text    加密功能已启用
+    sleep    10s
+    Close Application
+
+修改密码卡口令：修改口令两次输入不一致（复杂口令）
+    [Documentation]    预置条件：
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面 "
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上“修改密码卡口令”
+    ...    2. 在修改密码卡口令页面上输入正确的旧口令
+    ...    3. 点击“使用复杂口令
+    ...    4. 输入复杂口令（字母与数字组合，大于等于8位，小于等于16位
+    ...    5. 再次输入新口令，与第一次输入不一致"
+    ...
+    ...    预期结果：
+    ...    "1. 进入修改密码卡口令页面，页面样式符合UI设计
+    ...    2. 输入成功后，进入输入新口令界面，界面样式符合UI设计
+    ...    3. 进入设计密码卡口令-复杂口令页面 ，界面样式符合UI设计
+    ...    4. 输入完成后，进入再次输入新口令界面，界面样式符合UI设计
+    ...    5. 系统提示“密码不匹配，请重新输入”，并清空输入
+    ...    "
+    [Tags]    修改密码卡口令(#636)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    Wait Until Page Contains    请输入旧口令    10s    change password operation failed!
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/inputpinTV
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple
+    Page Should Contain Text    忘记口令
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/buttonTV
+    sleep    10s
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    ${OldVpwd}
+    Wait Until Page Contains    请输入新口令    10s    operation failed!
+    Click Element    id=com.cetcs.ecmapplication:id/simpleTV
+    Input Password    id=com.cetcs.ecmapplication:id/mComplexEditText    ${NewVpwd}    #复杂密码两次不一致
+    ${pram1}    Evaluate    os.system('adb shell input tap 960 1700')    os
+    log    ${pram1}
+    Page Should Contain Text    请再次输入新口令    #请再次输入新口令
+    Input Password    id=com.cetcs.ecmapplication:id/mComplexEditText    volte2015
+    Click Element    id=com.cetcs.ecmapplication:id/mComplexEditText
+    ${pram1}    Evaluate    os.system('adb shell input tap 960 1700')    os
+    log    ${pram1}
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/newPasswordErrorInfo    15s    operation failed!
+    Page Should Contain Text    口令不匹配，请重新输入
+    Page Should Contain Text    请再次输入新口令
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple
+    go back
+    go back
+    Wait Until Page Contains    是否终止修改口令？    10s    operation failed!
+    Click Element    id=com.cetcs.ecmapplication:id/alertEnter
+    Page Should Contain Text    加密功能已启用
+    sleep    10s
+    Close Application
+
+修改密码卡口令：复杂口令（位数小于8位）
+    [Documentation]    预置条件:
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面 "
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上“修改密码卡口令”
+    ...    2. 在修改密码卡口令页面上输入正确的旧口令
+    ...    3. 点击“使用复杂口令”
+    ...    4. 输入复杂口令的位数小于8位（纯数字不连续或者纯字母不连续或者数字字母组合）"
+    ...
+    ...    预期结果：
+    ...    "1. \ 进入修改密码卡口令页面，页面样式符合UI设计
+    ...    2. 输入成功后，进入输入新口令界面，界面样式符合UI设计
+    ...    3. 进入设计密码卡口令-复杂口令页面 ，界面样式符合UI设计
+    ...    4. 下一步按钮灰化，输入的密码不符合要求，不能进行下一步操作
+    ...    "
+    [Tags]    修改密码卡口令(#636)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    Wait Until Page Contains    请输入旧口令    10s    change password operation failed!
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/inputpinTV
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple
+    Page Should Contain Text    忘记口令
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/buttonTV
+    sleep    10s
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    ${OldVpwd}
+    Wait Until Page Contains    请输入新口令    10s    operation failed!
+    Click Element    id=com.cetcs.ecmapplication:id/simpleTV
+    Input Password    id=com.cetcs.ecmapplication:id/mComplexEditText    1237654
+    ${pram1}    Evaluate    os.system('adb shell input tap 960 1700')    os
+    log    ${pram1}
+    Page Should Not Contain Text    请再次输入新口令    #UI未出现下一步按钮
+    sleep    10s
+    close application
+
+修改密码卡口令：复杂口令（位数大于16位）
+    [Documentation]    预置条件：
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面 "
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上“修改密码卡口令”
+    ...    2. 在修改密码卡口令页面上输入正确的旧口令
+    ...    3. 点击“使用复杂口令”
+    ...    4. 输入复杂口令的位数大于16位（纯数字不连续或者纯字母不连续或者数字字母组合）"
+    ...
+    ...    预期结果：
+    ...    "1. 进入修改密码卡口令页面，页面样式符合UI设计 \ 2. 输入成功后，进入输入新口令界面，界面样式符合UI设计
+    ...    3. 进入设计密码卡口令-复杂口令页面 ，界面样式符合UI设计
+    ...    4. 下一步按钮灰化，输入的密码不符合要求，不能进行下一步操作
+    ...    "
+    [Tags]    修改密码卡口令(#636)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    Wait Until Page Contains    请输入旧口令    10s    change password operation failed!
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/inputpinTV
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple
+    Page Should Contain Text    忘记口令
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/buttonTV
+    sleep    10s
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    ${OldVpwd}
+    Wait Until Page Contains    请输入新口令    10s    operation failed!
+    Click Element    id=com.cetcs.ecmapplication:id/simpleTV
+    Input Password    id=com.cetcs.ecmapplication:id/mComplexEditText    autotestvolte2016
+    ${pram1}    Evaluate    os.system('adb shell input tap 960 1700')    os
+    log    ${pram1}
+    Page Should Not Contain Text    请再次输入新口令    #UI未出现下一步按钮
+    sleep    10s
+    close application
+
+修改密码卡口令：复杂口令（特殊字符）
+    [Documentation]    预置条件：
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面 "
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上“修改密码卡口令”
+    ...    2. 在修改密码卡口令页面上输入正确的旧口令
+    ...    3. 点击“使用复杂口令”
+    ...    4. 输入复杂口令的位数在8-16位之间，但是包含特殊字符，然后点击”下一步“"
+    ...
+    ...    预期结果：
+    ...    "1. 进入修改密码卡口令页面，页面样式符合UI设计
+    ...    2. 输入成功后，进入输入新口令界面，界面样式符合UI设计
+    ...    3. 进入设计密码卡口令-复杂口令页面 ，界面样式符合UI设计
+    ...    4. 系统提醒用户”不支持特殊字符，请输入字母和数字组合的密码“，清空输入"
+    [Tags]    修改密码卡口令(#636)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    Wait Until Page Contains    请输入旧口令    10s    change password operation failed!
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/inputpinTV
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple
+    Page Should Contain Text    忘记口令
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/buttonTV
+    sleep    10s
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    ${OldVpwd}
+    Wait Until Page Contains    请输入新口令    10s    operation failed!
+    Click Element    id=com.cetcs.ecmapplication:id/simpleTV
+    Input Password    id=com.cetcs.ecmapplication:id/mComplexEditText    1237654@
+    ${pram1}    Evaluate    os.system('adb shell input tap 960 1700')    os
+    log    ${pram1}
+    Page Should Not Contain Text    请再次输入新口令    #UI未出现下一步按钮
+    sleep    10s
+    close application
+
+修改密码卡口令：复杂口令（连续序列）
+    [Documentation]    预置条件：
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面"
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上“修改密码卡口令”
+    ...    2. 在修改密码卡口令页面上输入正确的旧口令
+    ...    3. 点击“使用复杂口令”
+    ...    4. 输入复杂口令（连续纯数字序列，不连续纯数字序列，连续纯字母序列，不连续纯字母序列），并且位数在8-16位之间，点击下一步"
+    ...
+    ...    预期结果：
+    ...    "1. 进入修改密码卡口令页面，页面样式符合UI设计
+    ...    2. 输入成功后，进入输入新口令界面，界面样式符合UI设计
+    ...    3. 进入设计密码卡口令-复杂口令页面 ，界面样式符合UI设计
+    ...    4. 系统提醒用户“口令过于简单，请重新设置”，清空输入。"
+    [Tags]    修改密码卡口令(#636)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    Wait Until Page Contains    请输入旧口令    10s    change password operation failed!
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/inputpinTV
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple
+    Page Should Contain Text    忘记口令
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/buttonTV
+    sleep    10s
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    ${OldVpwd}
+    Wait Until Page Contains    请输入新口令    10s    operation failed!
+    Click Element    id=com.cetcs.ecmapplication:id/simpleTV
+    Input Password    id=com.cetcs.ecmapplication:id/mComplexEditText    12345678
+    ${pram1}    Evaluate    os.system('adb shell input tap 960 1700')    os
+    log    ${pram1}
+    Page Should Not Contain Text    请再次输入新口令    #UI未出现下一步按钮
+    sleep    10s
+    close application
+
+修改密码卡口令：输入旧口令错误
+    [Documentation]    预置条件：
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面 "
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上“修改密码卡口令”
+    ...    2. 在修改密码卡口令页面上输入错误的旧口令"
+    ...
+    ...    预期结果：
+    ...    "1. 进入修改密码卡口令页面，页面样式符合UI设计 \ 2. 系统验证旧口令，提示用户旧口令错误，输入后，系统提示用户还能再次输入的次数"
+    [Tags]    修改密码卡口令(#636)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    Wait Until Page Contains    请输入旧口令    10s    change password operation failed!
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/inputpinTV
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple
+    Page Should Contain Text    忘记口令
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/buttonTV
+    sleep    10s
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    123457
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/errorInfo    10s    operation failed!
+    Page Should Contain Text    请输入旧口令
+    sleep    10s
+    Close Application
+
+修改密码卡口令：多次输入旧口令，密码卡被锁定
+    [Documentation]    预置条件：
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面 "
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上“修改密码卡口令”
+    ...    2. 在修改密码卡口令页面上输入错误的旧口令（输入6次错误的口令）"
+    ...
+    ...    预期结果：
+    ...    "1. 进入修改密码卡口令页面，页面样式符合UI设计
+    ...    2. 进入密码卡已被锁定的提示页面
+    ...    "
+    [Tags]    修改密码卡口令(#636)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    close application
+
+修改密码卡口令-PIN码解锁异常（超过5次输入错误）
+    [Documentation]    预置条件：
+    ...    "密码卡，SIM卡，并且成功插入手机内存卡卡槽
+    ...    密码卡被锁定，用户进入重置密码卡口令页面"
+    ...
+    ...    操作步骤：
+    ...    "1. 用户在重置密码卡口令页面上点击”输入PIN码“
+    ...    2. 连续输入5次错误的PIN码"
+    ...
+    ...    预期结果：
+    ...    "1. 系统进入PIN码认证页面，页面设计符合UI设计
+    ...    2. 系统进入PIN码失效页面，提示用户”PIN因连续输入5次错误而失效，如需重置口令或解除锁定，请到中国移动当地营业厅办理“，详询10086。
+    ...    "
+    [Tags]    修改密码卡口令(#636)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    close application
+
+修改密码卡口令：忘记口令
+    [Documentation]    预置条件:
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面 "
+    ...
+    ...    操作步骤："1. 点击APP加密功能启用中界面上“修改密码卡口令”
+    ...    2. 在修改口令页面上点击“忘记口令”"
+    ...
+    ...    预期结果：
+    ...    "1. 进入修改密码卡口令页面，页面样式符合UI设计
+    ...    2. 系统进入重置密码卡口令页面，页面样式符合UI设计
+    ...    "
+    [Tags]    修改密码卡口令(#636)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    close application
+
+修改密码卡口令：忘记口令（重置口令）
+    [Documentation]    预置条件：
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面 "
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上“修改密码卡口令”
+    ...    2. 点击页面上“忘记口令”
+    ...    3. 点击“输入PIN码”
+    ...    4. 输入正确的PIN码
+    ...    5. 输入新口令，然后确认新口令
+    ...    6. 点击重新登录，输入新口令"
+    ...
+    ...    预期结果：
+    ...    "1. 进入修改密码卡口令页面，页面样式符合UI设计
+    ...    2. 进入密码卡口令重置页面，页面样式符合UI设计
+    ...    3. 进入PIN码认证页面，页面样式符合UI设计
+    ...    4. 系统直接跳转到设置密码卡口令页面，页面样式符合UI设计，输入新口令
+    ...    5. 系统提示口令修改成功
+    ...    6. APP能成功登录，进入手机安全模式主界面"
+    [Tags]    修改密码卡口令(#636)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    close application
+
+修改密码卡口令：简单口令和复杂口令界面切换
+    [Documentation]    操作步骤:
+    ...    "1. 点击修改口令；
+    ...    2. 输入正确的旧口令；
+    ...    3. 不输入新口令，在简单口令设置界面，点击使用复杂口令；
+    ...    4. 不输入新口令，在复杂口令设置界面，点击使用简单口令；
+    ...    5. 在简单口令和复杂口令界面来回切换，观察界面显示；"
+    ...
+    ...    预期结果：
+    ...    "1. 成功进入旧口令输入界面，界面设计合理且符合需求；
+    ...    2. 成功输入并跳转到新口令设置界面（默认进入简单口令设置界面），界面设计合理且符合需求；
+    ...    3. 成功跳转到复杂口令设置界面，界面设计合理且符合需求；
+    ...    4. 成功跳转到简单口令设置界面，界面设计合理且符合需求；
+    ...    5. 操作正确响应且界面正常显示（输入、键盘、文字）。
+    ...    "
+    [Tags]    修改密码卡口令(#636)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
+    close application
+
+密码卡开机登录：输错密码6次，密码卡被锁定
+    [Documentation]    预置条件：
+    ...    TF卡，sim卡已成功插入手机卡槽，并且状态正常
+    ...
+    ...    操作步骤：
+    ...    "1. 用户打开手机终端
+    ...    2. 在登录界面上输入错误的登录密码，连续输入6次
+    ...    3. 重启手机"
+    ...
+    ...    预期结果：
+    ...    "1. 进入密码卡登录界面，界面样式符合UI设计
+    ...    2. 输入六次后，系统跳转到密码卡被锁定界面，在通知栏提示用户密码卡已被锁定
+    ...    3. 系统检测到密码卡被锁定，进入到密码卡被锁定界面（B04界面），并且在通知栏也显示密码卡被锁定"
+    [Tags]    密码卡状态监控(#637)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
+    close application
+
+密码卡异常：密码卡已锁定（通知栏提示密码卡异常）
+    [Documentation]    "密码卡因连续输入6次口令被锁定，将已锁定的密码卡插入手机内存卡卡槽
+    ...    密码卡异常提示默认为继续提示
+    ...    " "1. 用户打开手机终端
+    ...    2. 点击手机返回键，返回手机桌面，并且查看手机通知栏
+    ...    3. 点击通知栏的提示信息
+    ...    4. 点击界面上点击“跳过，暂不使用加密功能”
+    ...    5. 点击“继续提示“
+    ...    6. 重启手机
+    ...    7. 若在步骤3点击“不再提示”
+    ...    8. 重启手机，再次开机
+    ...    " "1. 系统检测密码卡异常，进入”开机异常提示-已锁定“界面，界面样式符合UI设计
+    ...    2. 在手机通知栏处提示用户密码卡已被锁定的提示信息
+    ...    3. 系统进入进入”开机异常提示-已锁定“界面，界面样式符合UI设计
+    ...    4. 弹出“下次开机时是否提示密码卡异常？”的提示信息 \ 5. 退出应用，进入手机桌面
+    ...    6. 开机时会提示密码卡异常，并且在手机通知栏也会显示密码卡异常的提示信息
+    ...    7. 退出应用，进入手机桌面
+    ...    8. 开机时系统不再检测密码卡异常，在手机通知栏处也不再显示密码卡异常的提示信息
+    ...    "
+    [Tags]    密码卡状态监控(#637)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
+    close application
+
+密码卡销毁：成功销毁
+    [Documentation]    预置条件:
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面
+    ...    密码卡异常提示默认设置为继续提示"
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上“销毁密码卡”
+    ...    2. 在密码卡销毁提醒页面点击下一步
+    ...    3. 输入密码卡口令（简单口令或者复杂口令）
+    ...    4. 点击“确定”按钮
+    ...    5. 按HOME键返回系统桌面，再重新访问被测应用；
+    ...    6. 重启手机
+    ...    7. 点击通知栏的信息或者直接点击启动APP "
+    ...
+    ...    预期结果：
+    ...    "1. 进入密码卡销毁提醒页面，页面样式符合UI设计
+    ...    2. 进入销毁密码卡页面，页面样式符合UI设计
+    ...    3. 系统弹出是否确认销毁密码卡提示信息，页面样式符合UI设计
+    ...    4. 系统显示密码卡销毁中的界面 ，最后进入密码卡已销毁界面，在该界面上停留一秒，进入APP主页面，密码卡已被销毁界面
+    ...    5. 被测应用仍然停留在密码卡已销毁界面；
+    ...    6. 开机后系统进入“开机登录异常-密码卡已损坏”界面，返回手机桌面，查看手机通知栏，在手机通知栏处显示提示密码卡已损坏的提示信息,
+    ...    7. 系统进入开机登录异常-密码卡已损坏的提示界面"
+    [Tags]    手动销毁功能(#639)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiaohuiLayout
+    Wait Until Page Contains    销毁密码卡    10s    operation failed!
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/destroy_tv_mimakahuihou
+    Click Element    id=com.cetcs.ecmapplication:id/destroy_btn_bottom
+    Wait Until Page Contains    销毁密码卡    10s    operation failed!
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    ${OldVpwd}
+    Wait Until Page Contains    是否确认销毁密码卡    10s    operation failed!
+    Page Should Contain Text    销毁密码卡后将无法恢复
+    Click Element    id=com.cetcs.ecmapplication:id/distory_confirm2
+    Wait Until Page Contains    密码卡已销毁    20s    operation failed!
+    Page Should Contain Text    加密功能无法继续使用，如需使用请到当地移动营业厅重新办理密码卡，详询10086
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV
+    sleep    10s
+    close application
+
+密码卡销毁：取消销毁
+    [Documentation]    预置条件：
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面 "
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上“销毁密码卡”
+    ...    2. 在密码卡销毁提醒页面点击下一步
+    ...    3. 输入密码卡口令（简单口令或者复杂口令）
+    ...    4. 点击“取消”按钮"
+    ...
+    ...    预期结果：
+    ...    "1. 进入密码卡销毁提醒页面，页面样式符合UI设计
+    ...    2. 进入销毁密码卡页面，页面样式符合UI设计
+    ...    3. 系统弹出是否确认销毁密码卡提示信息，页面样式符合UI设计
+    ...    4. 系统返回APP加密功能启用中界面，密码卡没有被销毁"
+    [Tags]    手动销毁功能(#639)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiaohuiLayout
+    Wait Until Page Contains    销毁密码卡    10s    operation failed!
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/destroy_tv_mimakahuihou
+    Click Element    id=com.cetcs.ecmapplication:id/destroy_btn_bottom
+    Wait Until Page Contains    销毁密码卡    10s    operation failed!
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    ${OldVpwd}
+    Wait Until Page Contains    是否确认销毁密码卡    10s    operation failed!
+    Page Should Contain Text    销毁密码卡后将无法恢复
+    Click Element    id=com.cetcs.ecmapplication:id/distory_cancal2
+    Wait Until Page Contains    加密功能已启用    20s    operation failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    close application
+
+密码卡销毁：输入错误口令，销毁不成功
+    [Documentation]    预置条件：
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面 "
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上“销毁密码卡”
+    ...    2. 在密码卡销毁提醒页面点击下一步
+    ...    3. 输入错误的密码卡口令
+    ...    4. 多次输入错误的密码卡口令（超过最大限制数）"
+    ...
+    ...    预期结果：
+    ...    "1. 进入密码卡销毁提醒页面，页面样式符合UI设计
+    ...    2. 进入销毁密码卡页面，页面样式符合UI设计
+    ...    3. 提示密码卡口令错误，停留在输入密码页面,清空输入
+    ...    4. 跳转到密码卡已锁定界面？"
+    [Tags]    手动销毁功能(#639)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/xiaohuiLayout
+    Wait Until Page Contains    销毁密码卡    10s    operation failed!
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/destroy_tv_mimakahuihou
+    Click Element    id=com.cetcs.ecmapplication:id/destroy_btn_bottom
+    Wait Until Page Contains    销毁密码卡    10s    operation failed!
+    Input Password    id=com.cetcs.ecmapplication:id/sdk2_pwd_edit_simple    ${OldVpwd}    #多次输入错误密码口令
+    sleep    10s
+    close application
+
+用户体验测试：从不同地方访问应用
+    [Documentation]    预置条件:
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面 "
+    ...
+    ...    操作步骤：
+    ...    "1. 从通知栏访问被测应用；
+    ...    2. 从系统桌面访问被测应用；"
+    ...
+    ...    预期结果：
+    ...    "1. 成功访问并正确显示；
+    ...    2. 成功访问并正确显示。"
+    [Tags]    用户体验(#655)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Close Application
+    Sleep    30s
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    Wait Until Page Contains    加密功能已启用    30s    acess failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Close Application
+
+密码卡安全参数设置：关闭定期删除加密通话记录
+    [Documentation]    预置条件：
+    ...    "1、被测应用已经准备就绪（成功安装在终端）；
+    ...    2、终端（手机）已经准备就绪；
+    ...    3、被测应用的安全检查设置中，定期删除加密通话记录为开启状态。"
+    ...
+    ...    操作步骤：
+    ...    "1. 点击进入APP安全检查界面；
+    ...    2. 选择定期删除加密通话记录，点击设置；
+    ...    3. 点击关闭；
+    ...    4. 点击取消；
+    ...    5. 在安全检查设置界面，选择定期删除加密通话记录，点击设置；
+    ...    6. 点击关闭；
+    ...    7. 点击确定；
+    ...    8. 点击进入APP其他界面后再返回安全检查界面，查看定期删除加密通话记录设置；
+    ...    9. 按HOME键或者返回键退出APP，再进入APP查看定期删除加密通话记录设置；
+    ...    10. 重启手机，再访问APP查看定期删除加密通话记录设置；
+    ...    11. 当使用周期到达历史指定的删除加密通话记录设置的时间，访问加密通话记录；"
+    ...
+    ...    预期结果：
+    ...    "1. 成功进入且界面设计符合用户预期；
+    ...    2. 成功进入设置界面，设置项中“开启”为选中状态且正确显示用户设置；
+    ...    3. 1、清空用户设置，取消开启的勾选状态且提示未设置删除周期；
+    ...    2、“关闭”为选中状态；
+    ...    4. 设置失败，返回安全检查设置界面；
+    ...    5. 成功进入设置界面，设置项中“开启”为选中状态且正确显示用户设置；
+    ...    6. 1、清空用户设置，取消开启的勾选状态且提示未设置删除周期；
+    ...    2、“关闭”为选中状态；
+    ...    7. 成功设置并正确保存；
+    ...    8. 成功进入设置界面，设置项中“关闭”为选中状态；
+    ...    9. 成功进入设置界面，设置项中“关闭”为选中状态；
+    ...    10. 成功进入设置界面，设置项中“关闭”为选中状态；
+    ...    11. 没有到期删除提示。"
+    [Tags]    安全检查(#641)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
+    Close Application
+
+密码卡安全参数设置：开启定期删除加密通话记录
+    [Documentation]    预置条件:
+    ...    "1、被测应用已经准备就绪（成功安装在终端）；
+    ...    2、终端（手机）已经准备就绪；
+    ...    3、被测应用的安全检查设置中，定期删除加密通话记录为关闭状态。"
+    ...
+    ...    操作步骤：
+    ...    "1. 点击进入APP安全检查界面；
+    ...    2. 选择定期删除加密通话记录，点击设置；
+    ...    3. 点击开启；
+    ...    4. 勾选控件提供的任意一个设置项；
+    ...    5. 点击取消；
+    ...    6. 在安全检查设置界面，选择定期删除加密通话记录，点击设置；
+    ...    7. 点击开启并重新勾选提醒时间；
+    ...    8. 点击确定；
+    ...    9. 点击进入APP其他界面后再返回安全检查界面，查看定期删除加密通话记录设置；
+    ...    10. 按HOME键或者返回键退出APP，再进入APP查看定期删除加密通话记录设置；
+    ...    11. 重启手机，再访问APP查看定期删除加密通话记录设置；
+    ...    12. 当使用周期到达指定期删除加密通话记录设置的时间，访问加密通话记录；
+    ...    13. 在删除提示中点击确定；"
+    ...
+    ...    预期结果：
+    ...    "1. 成功进入且界面设计符合用户预期；
+    ...    2. 成功进入设置界面，设置项中“关闭”为选中状态；
+    ...    3. 1、自动弹出选择提醒时间的控件，控件一共有30个选项：1天、2天、3天、.....、29天、30天；
+    ...    2、控件中提供的选项只能单选，不能多选；
+    ...    4. 成功勾选，控件由展开状态自动转化为收缩状态，开启设置正确显示为勾选的设置项；
+    ...    5. 设置失败，返回安全检查设置界面；
+    ...    6. 成功进入设置界面，设置项中“关闭”为选中状态；
+    ...    7. 成功勾选，控件由展开状态自动转化为收缩状态，开启设置正确显示为勾选的设置项；
+    ...    8. 成功设置并正确保存；
+    ...    9. 成功进入设置界面，设置项中“开启”为选中状态且提醒周期为设置的时间；
+    ...    10. 成功进入设置界面，设置项中“开启”为选中状态且提醒周期为设置的时间；
+    ...    11. 成功进入设置界面，设置项中“开启”为选中状态且提醒周期为设置的时间；
+    ...    12. 弹出到期删除记录提示，提示信息正确且设计合理；
+    ...    13. 成功删除全部加密通话记录。"
+    [Tags]    安全检查(#641)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Close Application
+
+密码卡安全参数设置：口令重置提醒关闭
+    [Documentation]    预置条件：
+    ...    " 密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面
+    ...    口令重置提醒设置默认为开启（当前时间未处于提醒设置范围之内，登录时不需要提醒重置口令）"
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上“安全检查”
+    ...    2. 点击口令重置提醒周期上的“设置”按钮
+    ...    3. 选择”关闭“选择框，点击确定按钮"
+    ...
+    ...    预期结果：
+    ...    "1. 系统进入安全检查页面，页面样式符合UI设计
+    ...    2. 弹出口令重置提醒弹出框，默认状态为”开启“，并且显示提醒周期，页面样式符合UI设计
+    ...    3. 口令重置提醒设置被关闭，系统返回到安全检查页面"
+    [Tags]    安全检查(#641)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
+    Wait Until Page Contains    口令重置提醒周期
+    Close Application
+
+密码卡安全参数设置：口令重置提醒：开启
+    [Documentation]    预置条件：
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面
+    ...    口令重置提醒设置默认为关闭"
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上“安全参数”
+    ...    2. 点击口令重置提醒周期上设置按钮
+    ...    3. 选择”开启“选择框，选择设置提醒时间，（验证各种时间）然后点击确定按钮"
+    ...
+    ...    预期结果：
+    ...    "1. 系统进入安全检查页面，页面样式符合UI设计
+    ...    2. 弹出口令重置提醒弹出框，默认状态为”关闭“，页面样式符合UI设计
+    ...    3. 口令重置提醒周期设置成功，返回到安全检查界面，在口令重置提醒区域 显示设置的口令提醒周期"
+    [Tags]    安全检查(#641)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
+    Wait Until Page Contains    口令重置提醒周期
+    Close Application
+
+密码卡安全参数设置：免口令设置：关闭
+    [Documentation]    预置条件：
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面
+    ...    免口令设置已经设置为开启 "
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上”安全检查“
+    ...    2. 点击安全设置页面上免口令登录的 设置按钮
+    ...    3. 在弹出框上选择”关闭“选项，然后点击确定按钮
+    ...    4. 重启手机，再次点击APP"
+    ...
+    ...    预期结果：
+    ...    "1. 进入安全检查页面，界面样式符合UI设计
+    ...    2. 弹出免口令登录设置提示信息框，界面设计符合UI设计
+    ...    3. 免口令登录被成功关闭，系统返回安全参数设置页面
+    ...    4. APP不能直接登录，需要输入密码卡口令才能进行登录"
+    [Tags]    安全检查(#641)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/miankoulingdengluTV    30s    sign in failed!
+    Page Should Contain Text    免口令登录    DEBUG
+    Page Should Contain Text    已开启    DEBUG
+    ${opened}=    Page Should Contain text    已开启    DEBUG
+    Run Keyword if    ${opened}=NONE    Click Element    id=com.cetcs.ecmapplication:id/miankoulingshezhiLayout
+    Wait Until Page Contains    长期存储口令    10s    sign in failed!
+    Wait Until Page Contains    开启后无需输入口令即可登录    10s    sign in failed!
+    Click Element    name=关闭
+    Click Element    name=确定
+    Page Should Contain Text    关闭
+    sleep    10s
+    close application
+
+密码卡安全设置：免口令设置：开启
+    [Documentation]    预置条件：
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面 "
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上“安全参数”
+    ...    2. 点击“免口令登录“的设置按钮
+    ...    3. 选择开启项，然后点击确定按钮
+    ...    4. 点击返回，退出被测应用；
+    ...    5. 重新访问APP；
+    ...    6. 重启手机，再访问APP；"
+    ...
+    ...    预期结果：
+    ...    "1. 进入安全检查页面，页面样式符合UI设计
+    ...    2. 弹出免口令登录设置页面，页面样式符合UI设计
+    ...    3. 免口令设置正常开启，成功返回到被测应用主界面；
+    ...    4. 成功返回到系统桌面；
+    ...    5. 无需输入密码成功登录；
+    ...    6. 无需输入密码成功登录；"
+    [Tags]    安全检查(#641)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/miankoulingdengluTV    30s    sign in failed!
+    Page Should Contain Text    免口令登录    DEBUG
+    Click Element    id=com.cetcs.ecmapplication:id/miankoulingshezhiLayout
+    Click Element    name=开启
+    Click Element    name=确定
+    Page Should Contain text    已开启
+    Click Element    id=com.cetcs.ecmapplication:id/finishTV
+    Wait Until Page Contains    加密功能已启用    10s    setup failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Close Application
+    Sleep    30s
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    Wait Until Page Contains    加密功能已启用    10s    setup failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    Close Application
+
+密码卡安全参数：安全检查正常
+    [Documentation]    预置条件：
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面 "
+    ...
+    ...    操作步骤:
+    ...    "1. 点击APP加密功能启用中界面上“安全参数”
+    ...    2. 点击“完成”按钮"
+    ...
+    ...    预期结果：
+    ...    "1. 进入安全设置页面，系统自动进行安全加密算法检查？？页面样式符合UI设计？？
+    ...    2. 系统返回APP加密功能启用中界面， 安全检查完成？"
+    [Tags]    安全检查(#641)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
+    Wait Until Page Contains    检查安全加密算法    30s    sign in failed!
+    Page Should Contain Text    数字证书有效性
+    Page Should Contain Text    密钥有效性
+    Page Should Contain Text    已是最新版本
+    Click Element    id=com.cetcs.ecmapplication:id/finishTV
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Close Application
+
+密码卡安全参数设置
+    [Documentation]    预置条件：
+    ...    "密码卡，SIM卡状态正常，并且成功插入手机内存卡卡槽
+    ...    启动APP并且已成功登录，进入APP加密功能启用中界面 "
+    ...
+    ...    操作步骤：
+    ...    "1. 点击APP加密功能启用中界面上“安全参数”
+    ...
+    ...    预期结果：
+    ...    "1. 系统进入安全检查页面，页面样式符合UI设计
+    ...    "
+    [Tags]    安全检查(#641)
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${ECMApp}    automationName=appium
+    ...    appPackage=com.cetcs.ecmapplication    appActivity=.LaunchActivity
+    sleep    10s
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    sleep    10s
+    Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/miankoulingdengluTV    30s    sign in failed!
+    #页面样式符合UI设计
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/anquanshezhiTV
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/miankoulingdengluTV
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/koulingchongzhishijianTV
+    Page Should Contain Text    检查安全加密算法
+    Page Should Contain Text    检查安全有效性状态
+    Page Should Contain Text    数字证书有效性
+    Page Should Contain Text    密钥有效性
+    Page Should Contain Text    密码管理软件版本
+    Click Element    id=com.cetcs.ecmapplication:id/finishTV

@@ -1,0 +1,1337 @@
+*** Settings ***
+Suite Setup
+Suite Teardown    Run Keyword If Any Critical Tests Failed    Close Application
+Library           AppiumLibrary
+Resource          test_android_contact_resource.txt
+Library           CustomLibrary
+
+*** Test Cases ***
+1.3.1 验证普通账户正常登录
+    [Documentation]    预置条件：
+    ...
+    ...    "1、企业通讯录服务器运行正常；
+    ...
+    ...    2、系统中已经创建了普通账户。"
+    ...
+    ...    操作步骤：
+    ...
+    ...    "1. 在手机APP客户端，输入正确的企业账户手机号码、密码和验证码，选择“记住密码”，点击“登录”，有预期结果1。
+    ...
+    ...    "
+    ...    预期结果：
+    ...    "1. 普通账户登录成功，并且下次不用输入密码就可以登录。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Close Application
+    sleep    30s    #待系统稳定
+    Open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    Page Should Contain Text    企业通讯录    自动登录失败
+
+~1.3.2 验证普通账户异常登录
+    [Documentation]    预置条件：
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、系统中已经创建了普通账户。"
+    ...
+    ...    操作步骤："1. 在手机APP客户端，输入错误的普通账户用户名（空、空格字符、中文、超长字符、小于11位或大于11位、特殊字符￥%*>或被删除账户等）或密码（空、空格字符、中文、小于8位、大于8位），正确的验证码，点击“登录”，有预期结果1;
+    ...    2. 在手机APP客户端，输入正确的普通账户用户名和密码、错误的验证码（空、空格字符、中文、特殊字符￥%*>或输入正确的后刷新等），点击“登录”，有预期结果2；
+    ...    3. 普通账户在登录时，重启后台服务器，有预期结果3；
+    ...    4. 普通账户a在手机A上成功登录后，再在手机B上登录，有预期结果4。
+    ...    5. 普通账户a在登录时输入正确的用户名和错误的密码，点击“登录”5次，有预期结果4。"
+    ...
+    ...    预期结果:
+    ...    "1. 登录失败，且系统有模糊提示：帐号或密码错误。重新输入正确的用户名、密码和刷新后的验证码，可以正常登录；
+    ...    2. 登录失败，且系统有提示：验证码输入错误。重新输入正确的验证码，可以正常登录；
+    ...    3. 登录超时，待后台服务器重启完成后，用户可正常登录；
+    ...    4. 用户a在A终端下线。
+    ...    5. 普通账户a被锁定，需要等待一段时间后或企业账户解锁后，才能使用正确密码重新登录。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    1340283820    #用户名只能输入数字
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    auto test
+    #Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    Wait Until Page Contains Element    id=westone.md.enterprisecontracts:id/alertTVInfo    60s    无模糊提示
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    ${pram1}    Evaluate    os.system('adb shell input tap 565 970')    os
+    log    ${pram1}
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    13402838201
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    auto test
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    Wait Until Page Contains Element    id=westone.md.enterprisecontracts:id/alertTVInfo    60s    无模糊提示
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    Wait Until Page Contains    卫士通移动互联网事业部    60s    登录异常，请检查
+    Page Should Contain Element    id=westone.md.enterprisecontracts:id/departmentParent    检查失败
+    Close Application
+
+1.3.3 验证普通账户正确找回密码
+    [Documentation]    预期结果：
+    ...
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、系统中已经创建了普通账户。"
+    ...
+    ...    操作步骤：
+    ...
+    ...    "1. 在手机APP客户端，普通账户找回密码，输入用户名和手机号码信息后，有预期结果1；
+    ...    2. 普通账户使用步骤1的验证码重置密码，有预期结果2。
+    ...    "
+    ...    预期结果：
+    ...
+    ...    "1. 普通账户手机可以收到验证码；
+    ...    2. 普通账户找回密码成功，可以使用重置后的密码登录。
+    ...    "
+    ${pram1}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram1}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_forget_password
+    Input Text    id=westone.md.enterprisecontracts:id/reset_password_activity_please_enter_cellphone_number    ${Atelno}
+    Click Element    id=westone.md.enterprisecontracts:id/reset_password_activity_send_verification_code
+    Press Keycode    3
+    Click Element    name=信息
+    Wait Until Page Contains Element    id=com.android.contacts:id/from    60s    未接收到验证码短信
+    Click Element    id=com.android.contacts:id/from
+    Click Element    id=com.android.contacts:id/text_view
+    sleep    5s
+    Click Element    name=复制文本
+    long press    id=com.android.contacts:id/from
+    Click Element    id=com.android.contacts:id/delete
+    Click Element    name=删除
+    Press Keycode    3
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    Long Press    id=westone.md.enterprisecontracts:id/reset_password_activity_please_enter_verification_code
+    sleep    5s
+    ${pram1}    Evaluate    os.system('adb shell input tap 120 350')    os
+    log    ${pram1}
+    sleep    5s
+    Input Password    id=westone.md.enterprisecontracts:id/reset_password_activity_new_password_first    ${Newpwd}
+    Input Password    id=westone.md.enterprisecontracts:id/reset_password_activity_new_password_second    ${Newpwd}
+    Click Element    id=westone.md.enterprisecontracts:id/reset_password_activity_submit
+    Wait Until Page Contains    重置密码成功！    60s    密码重设失败
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    sleep    5s
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Newpwd}
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Page Should Contain Text    卫士通移动互联网事业部    新密码登录失败
+    Click Element    id=westone.md.enterprisecontracts:id/main_page_settings
+    Click Element    id=westone.md.enterprisecontracts:id/setting_activity_modify_password_layout
+    Input Password    id=westone.md.enterprisecontracts:id/modify_password_activity_please_enter_original_password    ${Newpwd}
+    Input Password    id=westone.md.enterprisecontracts:id/modify_password_activity_please_enter_new_password    ${Apwd}
+    Input Password    id=westone.md.enterprisecontracts:id/modify_password_activity_please_confirm_new_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/modify_password_activity_preserve
+    sleep    5s
+    Page Should Contain Text    密码修改成功！    密码修改失败
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    Close Application
+
+1.3.4 验证普通账户错误找回密码
+    [Documentation]    预置条件:
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、系统中已经创建了普通账户。"
+    ...
+    ...    操作步骤:
+    ...    "1. 在手机APP客户端，普通账户找回密码，输入错误的手机号码（空、空格字符、中文、超长字符、小于11位或大于11位、特殊字符￥%*>或被删除账户等），有预期结果1；
+    ...    2. 在手机APP客户端，普通账户找回密码，输入正确的手机号码接收到验证码后，输入错误的验证码（已过期的、空、空格字符、中文、小于4位、大于4位）、密码（空、空格字符、中文、小于8位、大于8位或两次不一致）信息后重置密码，有预期结果2。"
+    ...
+    ...    预期结果:
+    ...    "1. 系统有相应的错误提示；
+    ...    2. 普通账户重置密码失败，系统有相应的错误提示。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_forget_password
+    Input Text    id=westone.md.enterprisecontracts:id/reset_password_activity_please_enter_cellphone_number    1340283820
+    Click Element    id=westone.md.enterprisecontracts:id/reset_password_activity_send_verification_code
+    Wait Until Page Contains    格式错误，请输入正确的手机号！
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/reset_password_activity_please_enter_cellphone_number    ${Atelno}
+    #Click Element    id=westone.md.enterprisecontracts:id/reset_password_activity_send_verification_code
+    Input Text    id=westone.md.enterprisecontracts:id/reset_password_activity_please_enter_verification_code    123456    #验证码为六位
+    Input Password    id=westone.md.enterprisecontracts:id/reset_password_activity_new_password_first    ${Newpwd}
+    Input Password    id=westone.md.enterprisecontracts:id/reset_password_activity_new_password_second    ${Newpwd}
+    Click Element    id=westone.md.enterprisecontracts:id/reset_password_activity_submit
+    Wait Until Page Contains    验证码错误或已过期！    60s    密码重设失败
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    tap    id=westone.md.enterprisecontracts:id/reset_password_activity_please_enter_verification_code
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/reset_password_activity_please_enter_verification_code    autotest
+    Click Element    id=westone.md.enterprisecontracts:id/reset_password_activity_submit
+    Wait Until Page Contains    验证码错误或已过期！    60s    密码重设失败
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    tap    id=westone.md.enterprisecontracts:id/reset_password_activity_please_enter_verification_code
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/reset_password_activity_please_enter_verification_code    auto test
+    Click Element    id=westone.md.enterprisecontracts:id/reset_password_activity_submit
+    Wait Until Page Contains    验证码错误或已过期！    60s    密码重设失败
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    tap    id=westone.md.enterprisecontracts:id/reset_password_activity_please_enter_verification_code
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Sleep    10s
+    Click Element    id=westone.md.enterprisecontracts:id/reset_password_activity_send_verification_code
+    Press Keycode    3
+    Click Element    name=信息
+    Wait Until Page Contains Element    id=com.android.contacts:id/from    60s    未接收到验证码短信
+    Click Element    id=com.android.contacts:id/from
+    Click Element    id=com.android.contacts:id/text_view
+    sleep    5s
+    Click Element    name=复制文本
+    long press    id=com.android.contacts:id/from
+    Click Element    id=com.android.contacts:id/delete
+    Click Element    name=删除
+    Close Application
+    sleep    30s
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_forget_password
+    Input Text    id=westone.md.enterprisecontracts:id/reset_password_activity_please_enter_cellphone_number    ${Atelno}
+    Long Press    id=westone.md.enterprisecontracts:id/reset_password_activity_please_enter_verification_code
+    sleep    5s
+    ${pram1}    Evaluate    os.system('adb shell input tap 120 350')    os
+    log    ${pram1}
+    sleep    5s
+    tap    id=westone.md.enterprisecontracts:id/reset_password_activity_new_password_first
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    sleep    10s
+    Input Password    id=westone.md.enterprisecontracts:id/reset_password_activity_new_password_first    1234567
+    tap    id=westone.md.enterprisecontracts:id/reset_password_activity_new_password_second
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    sleep    10s
+    Input Password    id=westone.md.enterprisecontracts:id/reset_password_activity_new_password_second    1234567
+    Click Element    id=westone.md.enterprisecontracts:id/reset_password_activity_submit
+    Wait Until Page Contains    密码无效！(密码长度不能小于8位)    30s
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    tap    id=westone.md.enterprisecontracts:id/reset_password_activity_new_password_first
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    sleep    10s
+    Input Password    id=westone.md.enterprisecontracts:id/reset_password_activity_new_password_first    12345678
+    tap    id=westone.md.enterprisecontracts:id/reset_password_activity_new_password_second
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    sleep    10s
+    Input Password    id=westone.md.enterprisecontracts:id/reset_password_activity_new_password_second    123456789
+    Click Element    id=westone.md.enterprisecontracts:id/reset_password_activity_submit
+    Wait Until Page Contains    密码输入不一致！    30s
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    close application
+
+1.3.5 验证普通账户正确修改密码
+    [Documentation]    预置条件:
+    ...    "1、企业通讯录服务器运行正常；2、普通账户已登录成功。"
+    ...
+    ...    操作步骤:
+    ...    "1. 普通账户进入修改密码菜单，输入正确的原密码和新密码后，有预期结果1。"
+    ...
+    ...    预期结果:
+    ...    "1. 普通账户修改密码成功，不可以使用原密码登录，可以使用修改后的密码登录。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Click Element    id=westone.md.enterprisecontracts:id/main_page_settings
+    Click Element    id=westone.md.enterprisecontracts:id/setting_activity_modify_password_layout
+    Input Password    id=westone.md.enterprisecontracts:id/modify_password_activity_please_enter_original_password    ${Apwd}
+    Input Password    id=westone.md.enterprisecontracts:id/modify_password_activity_please_enter_new_password    ${Newpwd}
+    Input Password    id=westone.md.enterprisecontracts:id/modify_password_activity_please_confirm_new_password    ${Newpwd}
+    Click Element    id=westone.md.enterprisecontracts:id/modify_password_activity_preserve
+    sleep    5s
+    Page Should Contain Text    密码修改成功！    密码修改失败
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    sleep    5s
+    Click Element    id=westone.md.enterprisecontracts:id/setting_activity_log_out
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    Wait Until Page Contains    用户名或密码错误！    60s    密码已经修改，不能使用原密码登录
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    Sleep    5s
+    Close Application
+    Sleep    60s
+    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    Sleep    5s
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Newpwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    Sleep    5s
+    Click Element    id=westone.md.enterprisecontracts:id/main_page_settings
+    Click Element    id=westone.md.enterprisecontracts:id/setting_activity_modify_password_layout
+    Input Password    id=westone.md.enterprisecontracts:id/modify_password_activity_please_enter_original_password    ${Newpwd}
+    Input Password    id=westone.md.enterprisecontracts:id/modify_password_activity_please_enter_new_password    ${Apwd}
+    Input Password    id=westone.md.enterprisecontracts:id/modify_password_activity_please_confirm_new_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/modify_password_activity_preserve
+    sleep    5s
+    Page Should Contain Text    密码修改成功！    密码修改失败
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    Close Application
+
+1.3.6 验证普通账户错误修改密码
+    [Documentation]    预置条件:
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、普通账户已登录成功。"
+    ...
+    ...    操作步骤:
+    ...    "1. 普通账户进入修改密码菜单，输入错误的原密码和正确的新密码后，有预期结果1；
+    ...
+    ...    2. 普通账户进入修改密码菜单，输入正确的原密码和错误的新密码（空、空格字符、中文、小于8位、大于8位或两次不一致）信息后修改密码，有预期结果1。"
+    ...
+    ...    预期结果:
+    ...    "1. 修改密码失败，系统有相应的错误提示。
+    ...    2. 修改密码失败，系统有相应的错误提示。"
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Click Element    id=westone.md.enterprisecontracts:id/main_page_settings
+    Click Element    id=westone.md.enterprisecontracts:id/setting_activity_modify_password_layout
+    Input Password    id=westone.md.enterprisecontracts:id/modify_password_activity_please_enter_original_password    12345679
+    Input Password    id=westone.md.enterprisecontracts:id/modify_password_activity_please_enter_new_password    ${Newpwd}
+    Input Password    id=westone.md.enterprisecontracts:id/modify_password_activity_please_confirm_new_password    ${Newpwd}
+    Click Element    id=westone.md.enterprisecontracts:id/modify_password_activity_preserve
+    sleep    5s
+    Wait Until Page Contains    原密码错误！    30s
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    tap    id=westone.md.enterprisecontracts:id/modify_password_activity_please_enter_original_password
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Password    id=westone.md.enterprisecontracts:id/modify_password_activity_please_enter_original_password    ${Apwd}
+    tap    id=westone.md.enterprisecontracts:id/modify_password_activity_please_enter_new_password
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Password    id=westone.md.enterprisecontracts:id/modify_password_activity_please_enter_new_password    12345679
+    tap    id=westone.md.enterprisecontracts:id/modify_password_activity_please_confirm_new_password
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Password    id=westone.md.enterprisecontracts:id/modify_password_activity_please_confirm_new_password    ${Newpwd}
+    Click Element    id=westone.md.enterprisecontracts:id/modify_password_activity_preserve
+    sleep    5s
+    Wait Until Page Contains    新密码输入不一致！    30s
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    tap    id=westone.md.enterprisecontracts:id/modify_password_activity_please_enter_new_password
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Password    id=westone.md.enterprisecontracts:id/modify_password_activity_please_enter_new_password    1234567
+    tap    id=westone.md.enterprisecontracts:id/modify_password_activity_please_confirm_new_password
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Password    id=westone.md.enterprisecontracts:id/modify_password_activity_please_confirm_new_password    1234567
+    Click Element    id=westone.md.enterprisecontracts:id/modify_password_activity_preserve
+    Wait Until Page Contains    密码无效！(密码长度不能小于8位)    30s
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    sleep    40s
+    Close Application
+
+1.3.7 验证普通账户正常退出登录
+    [Documentation]    预置条件:
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、普通账户已登录成功。"
+    ...
+    ...    操作步骤:
+    ...    "1. 普通账户点击退出登录（或退出APP），有预期结果1。
+    ...    2. 普通账户登录成功后无操作一段时间，有预期结果2。"
+    ...
+    ...    预期结果:
+    ...    "1. 退出登录成功，进入APP需要重新登录。
+    ...    2. 再次操作时可以直接操作，不需要重新登录。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Page Should Contain Text    卫士通移动互联网事业部    新密码登录失败
+    Click Element    id=westone.md.enterprisecontracts:id/main_page_settings
+    Click Element    id=westone.md.enterprisecontracts:id/setting_activity_log_out
+    sleep    5s
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    Press Keycode    3
+    sleep    120s
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    Page Should Contain Text    卫士通移动互联网事业部    操作失败
+    Close Application
+
+~2.1.11 验证企业级人员信息推送
+    [Documentation]    预置条件：
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、企业账户已登录成功。"
+    ...
+    ...    操作步骤:
+    ...    "1. 普通账户1第一次使用客户端A进行登录，有预期结果1；
+    ...    2. 普通账户1非第一次使用客户端A客户端登录，有预期结果2。"
+    ...
+    ...    预期结果:
+    ...    "1. 普通账户1组织权限的信息会推送到客户端A，并保存到本地数据库；
+    ...    2. 普通账户1组织权限的更新信息会推送到客户端A，并保存到本地数据库，普通账户1也可以手动点击刷新进行普通账户的信息刷新。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Close Application
+
+3.1.1 验证正确修改个人信息
+    [Documentation]    预置条件:
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、普通账户A已登录成功。"
+    ...
+    ...    操作步骤:
+    ...    "1. 普通账户A正确修改自己的手机、邮箱和地址等信息后保存，有预期结果1，2。"
+    ...
+    ...    预期结果:
+    ...    "1. 1、普通账户A的信息修改成功，并且修改后的信息同步到服务器和本地数据库上，本地数据库和个人收藏显示修改后的信息；
+    ...    2、其他客户端（本地数据库、个人收藏）普通账户A的信息会更新。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Click Element    id=westone.md.enterprisecontracts:id/main_page_person_info
+
+3.1.2 验证错误修改个人信息
+    [Documentation]    预置条件:
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、普通账户A已登录成功。"
+    ...
+    ...    操作步骤:"1.普通账户A错误修改自己的手机（空、空格字符、中文、超长字符、小于11位或大于11位、特殊字符￥%*>等）、邮箱（空、空格字符、中文、超长字符、特殊字符￥%*>等）和地址等信息后保存，有预期结果1。"
+    ...
+    ...    预期结果:
+    ...    "1. 普通账户A的信息修改失败，系统有相应的错误提示。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Click Element    id=westone.md.enterprisecontracts:id/personal_info_layout
+    Click Element    id=westone.md.enterprisecontracts:id/saveLayout
+    Input Text    //android.widget.EditText[1]    0
+    click element    id=westone.md.enterprisecontracts:id/actionbarSaveTV
+    sleep    5s
+    ${retValue}    Page Should Contain Element    id=westone.md.enterprisecontracts:id/alertTVInfo    'page not contain AlertElements'
+    Run Keyword If    ${retValue}==None    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    Click Element    id=westone.md.enterprisecontracts:id/userInfoBack
+    Click Element    id=westone.md.enterprisecontracts:id/cancelTV
+    Page Should Contain Text    18200395697    'telephone number have been modified. '
+    Close Application
+
+3.1.3 验证添加个人收藏
+    [Documentation]    预置条件：
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、普通账户A已登录成功。"
+    ...
+    ...    操作步骤:
+    ...    "1. 普通账户A查看企业用户信息后，对企业用户进行收藏，有预期结果1，2。"
+    ...
+    ...    预期结果:
+    ...    " 1、收藏的企业用户信息在个人收藏夹中，信息与企业用户信息一致；
+    ...    2、更新后的企业用户信息会同步到个人收藏夹中。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    ${Bname}
+    sleep    5s
+    Click Element    id=westone.md.enterprisecontracts:id/collection_fragment_item_title
+    Click Element    id=westone.md.enterprisecontracts:id/contactCollect
+    Click Element    id=westone.md.enterprisecontracts:id/contactDetailBack
+    Click Element    name=收藏
+    Page Should Contain Text    ${Bcname}    添加个人收藏失败
+    Close Application
+
+3.1.4 验证删除个人收藏
+    [Documentation]    预置条件:
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、普通账户A已登录成功。"
+    ...
+    ...    操作步骤:
+    ...    "1. 普通账户A在个人收藏夹中对企业用户进行删除，有预期结果1。"
+    ...
+    ...    预期结果:
+    ...    "1. 个人收藏夹中企业用户删除成功，但不会删除企业通讯录的个人信息。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Click Element    name=收藏
+    ${collects}    Run Keyword And Return Status    Page Should Contain Text    ${Bcname}
+    log    ${collects}
+    Run Keyword If    ${collects}    Long press    name=${Bcname}
+    sleep    3s
+    click element    id=westone.md.enterprisecontracts:id/delete_show_contacts_layout_delete_contacts
+    Page Should Not Contain Text    ${Bcname}    删除个人收藏失败
+    Close Application
+
+4.1.1 验证企业通讯录初次同步到本地系统通讯录
+    [Documentation]    预置条件:
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、普通账户A已登录成功。"
+    ...
+    ...    操作步骤:
+    ...    "1. 普通账户A查看企业用户信息后，第一次将企业用户通讯录同步到本地通讯录中，有预期结果1，2。"
+    ...
+    ...    预期结果：
+    ...    "1. 1、同步到本地通讯录成功，且信息与企业用户通讯录的信息一致；
+    ...    2、可以对本地通讯录进行编辑修改删除，但不会影响企业通讯录的用户信息。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    zhangxiuhai
+    sleep    5s
+    Click Element    id=westone.md.enterprisecontracts:id/collection_fragment_item_title
+    Click Element    id=westone.md.enterprisecontracts:id/collect_layout
+    sleep    5s
+    Page Should Contain Text    同步联系人成功！    同步本地通讯录失败！
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    press keycode    3
+    sleep    3s
+    Click Element    name=联系人
+    click element    id=com.android.contacts:id/searchEntryLayout
+    Input Text    id=android:id/search_src_text    zhangxiuhai
+    Click Element    name=张修海
+    Page Should Contain Text    185 8391 0576    同步信息不正确
+    Page Should Contain Text    zhang.xiuhai@30raycom.com
+    Click Element    id=com.android.contacts:id/menu_editContact
+    Click Element    name=18583910576
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    name=电话    185839105760000
+    Click Element    id=com.android.contacts:id/mSave
+    Page Should Contain Text    185839105760000
+    Close Application
+
+5.1.1 验证企业通讯录正常搜索人员
+    [Documentation]    预置条件:
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、普通账户A已登录成功。"
+    ...
+    ...    操作步骤:
+    ...    "1. 普通账户A在查看企业用户信息后，输入正确的（精准或模糊）用户名进行搜索，有预期结果1，2。"
+    ...
+    ...    预期结果:
+    ...    "1. 1、搜索结果显示与搜索条件匹配的企业用户；
+    ...    2、系统支持模糊搜索，搜索结果能显示出与之匹配的所有企业用户列表。
+    ...    "
+    [Setup]
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    zhangxiuhai
+    sleep    5s
+    Page Should Contain Element    name=张修海    未查到联系人
+    : FOR    ${i}    IN RANGE    30
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    sleep    5s
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    zhang
+    sleep    5s
+    Page Should Contain Element    id=westone.md.enterprisecontracts:id/collection_fragment_item_catalog    模糊搜索失败
+    Close Application
+
+5.1.2 验证企业通讯录异常搜索人员
+    [Documentation]    预置条件:
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、普通账户A已登录成功。"
+    ...
+    ...    操作步骤:
+    ...    "1. 普通账户A在查看企业用户信息后，输入错误的用户名（非本组织人员、空、数字、空格字符、超长字符、特殊字符￥%*>）进行搜索，有预期结果1。"
+    ...
+    ...    预期结果:
+    ...    "1. 搜索失败。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    zhangxiuhaihaixiuzhang
+    sleep    5s
+    Page Should Not Contain Element    id=westone.md.enterprisecontracts:id/collection_fragment_item_title    搜索到非组织成员
+    : FOR    ${i}    IN RANGE    25
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    zhangxiuhai haixiuzhang
+    sleep    5s
+    Page Should Not Contain Element    id=westone.md.enterprisecontracts:id/collection_fragment_item_title    搜索到非组织成员
+    : FOR    ${i}    IN RANGE    25
+    \    press keycode    67    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    123456789
+    sleep    5s
+    Page Should Not Contain Element    id=westone.md.enterprisecontracts:id/collection_fragment_item_title    搜索到非组织成员
+    Close Application
+
+6.1.1 验证从企业通讯录进入IM应用及界面切换功能
+    [Documentation]    预置条件:
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、普通账户A已登录成功。"
+    ...
+    ...    操作步骤:
+    ...    "1. 未安装密语的普通账户A查看企业用户信息后，点击“瑞信”，有预期结果1；
+    ...    2. 下载和安装完成后，重新进行步骤1，有预期结果2。"
+    ...
+    ...    预期结果:
+    ...    "1. 系统会提示进行密语下载和安装（升级）；
+    ...    2. 系统切换进入密语的界面，进行安全的短信通讯，发送完成可以切换到企业通讯录界面。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    zhangxiuhai
+    sleep    5s
+    Click Element    name=张修海
+    Click Element    id=westone.md.enterprisecontracts:id/choseIMLayout
+    #Wait Until Page Contains    密语未安装，请确认是否下载并安装？    60s    下载密语失败
+    #Click Element    id=westone.md.enterprisecontracts:id/alertEnter
+    #Wait Until Page Contains Element    id=westone.md.enterprisecontracts:id/alertTVInfo    180s
+    #Run Keyword If    Page Should not Contain Text    无法下载新版本，请确认服务器地址是否正确配置！    下载密语失败    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    Wait Until Page Contains Element    id=com.android.packageinstaller:id/app_name    180s    下载密语失败，请网络检查配置
+    Page Should Contain Text    卫士通密语
+    Click Element    id=com.android.packageinstaller:id/ok_button
+    Click Element    id=com.android.packageinstaller:id/ok_button
+    Click Element    id=com.android.packageinstaller:id/ok_button
+    Wait Until Page Contains    应用安装完成。    30s    应用安装失败
+    Click Element    id=com.android.packageinstaller:id/launch_button
+    sleep    5s
+    Click Element    id=com.raycom.securesms:id/start_messaging_button
+    Input Text    id=com.raycom.securesms:id/number    ${Atelno}
+    Click Element    id=com.raycom.securesms:id/codeButton
+    Input Text    id=com.raycom.securesms:id/verification_code    000000
+    sleep    60s
+    Click Element    id=com.raycom.securesms:id/registerButton
+    Wait Until Page Contains Element    id=android:id/message    10s
+    Click Element    name=继续
+    Wait Until Page Contains    个人信息设置    30s    注册失败
+    Click Element    name=昵称
+    Run Keyword If    Page Should Contain Text    昵称    Input Text    id=android:id/edit    auto test
+    Click Element    name=确定
+    Click Element    name=下一步
+    Wait Until Page Contains    联系人    10s
+    Press Keycode    4
+    sleep    10s
+    Click Element    id=westone.md.enterprisecontracts:id/choseIMLayout
+    sleep    5s
+    Input Text    id=com.raycom.securesms:id/embedded_text_editor    just for auto test, ignore please!
+    Click Element    id=com.raycom.securesms:id/send_button
+    sleep    20s
+    close application
+
+6.1.2 验证从企业通讯录进入VOIP应用及界面切换功能
+    [Documentation]    预置条件:
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、普通账户A已登录成功。"
+    ...
+    ...    操作步骤:
+    ...    "1. 未安装密话的普通账户A查看企业用户信息后，点击“安全电话”，有预期结果1；
+    ...    2. 下载和安装完成后，重新进行步骤1，有预期结果2。"
+    ...
+    ...    预期结果:
+    ...    "1. 系统会提示进行密话下载和安装（升级）；
+    ...    2. 系统切换进入密话的界面，进行安全的语音通讯，通话完成可以切换到企业通讯录界面。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Close Application
+
+6.1.3 验证从企业通讯录进入安全邮件应用及界面切换功能
+    [Documentation]    预置条件:
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、普通账户A已登录成功。"
+    ...
+    ...    操作步骤:
+    ...    "1. 未安装密邮的普通账户A查看企业用户信息后，点击“密邮”，有预期结果1；
+    ...    2. 下载和安装完成后，重新进行步骤1，有预期结果2。"
+    ...
+    ...    预期结果:
+    ...    "1. 系统会提示进行密邮下载和安装（升级）；
+    ...    2. 系统切换进入密邮的界面，进行安全的邮件发送，发送完成可以切换到企业通讯录界面。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    ${Bname}
+    sleep    5s
+    Click Element    name=严彬宾
+    Click Element    id=westone.md.enterprisecontracts:id/meuLayout
+    ${mstatus}    Page Should Contain Text    密邮未安装，请确认是否下载并安装？
+    ${downlcounts}=    Set Variable If    $mstatus == None    1    0
+    Run Keyword If    $mstatus == None    Click Element    id=westone.md.enterprisecontracts:id/alertEnter
+    ${dstatus}    Wait Until Page Contains    无法下载新版本，请确认服务器地址是否正确配置！    60s    无法下载新版本，请确认服务器地址是否正确配置！
+    Run Keyword If    $mstatus == None    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+
+6.1.4 验证从企业通讯录进入普通通讯应用及界面切换功能
+    [Documentation]    预置条件:
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、普通账户A已登录成功。"
+    ...
+    ...    操作步骤：
+    ...    "1. 普通账户A查看企业用户信息后，有预期结果1。"
+    ...
+    ...    预期结果:
+    ...    "1. 账户A可以对企业用户进行普通的短信（语音、邮件）通讯，通讯完成可以切换到企业通讯录界面。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    ${Bname}
+    sleep    5s
+    Click Element    name=${Bcname}
+    Click Element    id=westone.md.enterprisecontracts:id/choseCellphoneLayout
+    Click Element    id=westone.md.enterprisecontracts:id/phonecalldialog_framelayout
+    Sleep    5s
+    Click Element    id=com.android.incallui:id/endButton
+    Sleep    5s
+    Page Should Contain Text    ${Bcname}    未切换回企业通讯录
+    Sleep    5s
+    Click Element    id=westone.md.enterprisecontracts:id/emailLayout
+    Input Text    id=com.android.email:id/subject    just for auto test ,ignore please!
+    Click Element    id=com.android.email:id/send
+    Wait Until Page Contains    确定要发送该邮件？    60s    发送邮件失败
+    Click Element    name=确定
+    Sleep    5s
+    Page Should Contain Text    ${Bcname}    未切换回企业通讯录
+    Sleep    5s
+    Click Element    id=westone.md.enterprisecontracts:id/choseMessageLayout
+    Input Text    id=com.android.contacts:id/embedded_text_editor    just for auto test ,ignore please!
+    Click Element    id=com.android.contacts:id/send_message
+    Sleep    5s
+    Page Should Contain Text    ${Bcname}    未切换回企业通讯录
+
+6.1.6 用户通过APP反馈信息
+    [Documentation]    预置条件：
+    ...    "1、企业通讯录服务器正常运行；
+    ...    2、普通用户A已登录APP。"
+    ...
+    ...    操作步骤：
+    ...    "1. 用户A通过APP反馈信息，并填写联系方式（邮箱/手机号/QQ/微信）。"
+    ...
+    ...    预期结果：
+    ...    "1. 反馈信息发送到相关邮箱。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Click Element    id=westone.md.enterprisecontracts:id/setting_layout
+    Click Element    name=关于
+    Click Element    name=意见反馈
+    Input Text    id=westone.md.enterprisecontracts:id/editTextFeedbackInfo    auto test feedback infomation to server, just ignore it.
+    Input Text    id=westone.md.enterprisecontracts:id/editTextContactInfo    zhang.xh@30raycom.com\\13402838201
+    Click Element    id=westone.md.enterprisecontracts:id/buttonSubmit
+    sleep    5s
+    Page Should Contain Text    反馈信息提交成功！    反馈信息未提交成功
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    sleep    15s
+    Close Application
+
+7.1.1 验证企业通讯录APP本身升级及卸载功能
+    [Documentation]    预置条件:
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、普通账户A已登录成功；
+    ...    3、客户端安装的企业通讯录版本为a，网上发布版本为b，且b&gt;a。"
+    ...
+    ...    操作步骤:
+    ...    "1. 普通账户A登录进入企业通讯录，有预期结果1；
+    ...    2. 用户点击确认后，升级成功后，进行关于查看，有预期结果2；
+    ...    3. 用户卸载企业通讯录，有预期结果3；
+    ...    4. 用户安装企业通讯录版本a，有预期结果4；"
+    ...
+    ...    预期结果:
+    ...    "1. 系统提示软件有更新进行升级（用户可选择取消升级）；
+    ...    2. 系统显示为版本b；
+    ...    3. 能卸载完成且无残留，对其他安全应用无影响，对本地同步了的通讯录无影响；
+    ...    4. 用户可正常安装和登录，关于显示版本为a。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Close Application
+
+7.1.2 验证企业通讯录应用平台的应用安装和打开功能
+    [Documentation]    预置条件:
+    ...    "1、企业通讯录服务器运行正常；
+    ...    2、普通账户A已登录成功。"
+    ...
+    ...    操作步骤:
+    ...    "1. 普通账户A进入应用管理界面，有预期结果1；
+    ...    2. 安装完成后打开相应应用，有预期结果2。"
+    ...
+    ...    预期结果: "1. 可以看到平台发布的各种安全应用，用户可以对安全应用进行下载和安装。
+    ...    2. 普通账户A可以进入应用，并且安全应用和企业通讯录界面之间切换。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Close Application
+
+9.1.1 将系统通讯录中没有的单人信息进行同步
+    [Documentation]    预置条件:
+    ...    "1、已登录企业通讯录APP；
+    ...    2、企业通讯录已收藏用户A个人信息，该信息在系统通讯录中不存在。"
+    ...
+    ...    操作步骤:
+    ...    "1. 将企业通讯录中用户A的个人信息同步到系统通讯录。"
+    ...
+    ...    预期结果: "1. 同步成功，系统通讯录中用户A个人信息与企业通讯录一致。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    yanbinbin
+    sleep    5s
+    Page Should Contain Text    ${Bcname}    未搜索到联系人
+    Click Element    name=${Bcname}
+    click element    id=westone.md.enterprisecontracts:id/collect_layout
+    Wait Until Page Contains    同步联系人成功！    60s    同步练习人失败
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm    #点击确定按钮
+    Press Keycode    3
+    Click Element    name=联系人
+    Page Should Contain Text    ${Bcname}    同步联系人失败
+    Click Element    name=${Bcname}
+    Page Should Contain Text    ${Btelno}    同步联系人失败
+    Page Should Contain Text    ${Bemail}    同步联系人失败
+    Close Application
+
+9.1.2 将系统通讯录中已存在的单人信息进行同步
+    [Documentation]    预置条件:
+    ...    "1、已登录企业通讯录APP；
+    ...    2、企业通讯录和系统通讯录中均存在用户A个人信息。"
+    ...
+    ...    操作步骤:
+    ...    "1. 将用户A个人信息同步到系统通讯录。"
+    ...
+    ...    预期结果:
+    ...    "1. 同步成功，系统通讯录中用户A个人信息与企业通讯录一致。"
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    zhangxiuhai
+    sleep    5s
+    Click Element    name=张修海
+    Click Element    id=westone.md.enterprisecontracts:id/collect_layout
+    Page Should Contain Text    同步联系人成功！    同步到本地失败。
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    Close Application
+
+9.1.3 系统通讯录中的个人电话号码信息与企业通讯录不一致时添加到现有联系人
+    [Documentation]    预置条件:
+    ...
+    ...    "1、已登录企业通讯录APP；
+    ...    2、系统通讯录与企业通讯录中同时存在用户A个人信息，且电话号码信息不一致。"
+    ...
+    ...    操作步骤:
+    ...
+    ...    "1. 将用户A个人信息同步到系统通讯录。
+    ...    2. 选择添加到现有联系人。"
+    ...
+    ...    预期结果:
+    ...
+    ...    "1. 提示需要进行联系人去重；
+    ...    2. 添加成功，添加信息与企业通讯录保持一致。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    zhangxiuhai
+    sleep    5s
+    Click Element    name=张修海
+    Click Element    id=westone.md.enterprisecontracts:id/collect_layout
+    Page Should Contain Text    同步联系人成功！    同步到本地失败。
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    Press Keycode    3
+    Click Element    name=联系人
+    Click Element    id=com.android.contacts:id/searchEntryLayout
+    Input Text    id=android:id/search_src_text    zhangxiuhai
+    Click Element    name=张修海
+    Click Element    id=com.android.contacts:id/menu_editContact
+    Tap    name=18583910576
+    sleep    5s
+    press keycode    122
+    sleep    5s
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    sleep    5s
+    Input Text    name=电话    18583910575
+    Click Element    id=com.android.contacts:id/mSave
+    Close Application
+    sleep    20s
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    zhangxiuhai
+    sleep    5s
+    Click Element    name=张修海
+    Click Element    id=westone.md.enterprisecontracts:id/collect_layout
+    Page Should Contain Text    联系人去重
+    Click Element    id=westone.md.enterprisecontracts:id/addToContactLayout
+    Input Text    id=android:id/search_src_text    zhangxiuhai
+    Click Element    name=张修海
+    Click Element    id=com.android.contacts:id/mSave
+    Press Keycode    3
+    Click Element    name=联系人
+    Click Element    id=com.android.contacts:id/searchEntryLayout
+    Input Text    id=android:id/search_src_text    zhangxiuhai
+    Click Element    name=张修海
+    Page Should Contain Text    18583910576    添加到现有联系人失败
+    Close All Applications
+
+10.1.1 通过第三方软件，分享企业通讯录名片信息
+    [Documentation]    预置条件:
+    ...    1、已登录企业通讯录APP。
+    ...
+    ...    操作步骤:
+    ...    "1. 通过第三方软件（微信、QQ等），分享企业通讯录名片；
+    ...    2. 将名片添加到系统通讯录。"
+    ...
+    ...    预期结果:
+    ...    "1. 分享成功；
+    ...    2. 添加成功，系统通讯录信息与企业通讯录保持一致。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    5s
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    zhangxiuhai
+    sleep    5s
+    Click Element    name=张修海
+    Long Press    id=westone.md.enterprisecontracts:id/cellphoneNumberTV
+    sleep    5s
+    ${pram1}    Evaluate    os.system('adb shell input tap 270 555')    os
+    log    ${pram1}
+    Sleep    5s
+    Click Element    id=westone.md.enterprisecontracts:id/shareLayout
+    Click Element    name=彩信
+    Long Press    id=com.android.contacts:id/recipients_editor
+    ${pram2}    Evaluate    os.system('adb shell input tap 75 180')    os
+    log    ${pram2}
+    Click Element    id=com.android.contacts:id/send_message
+    Sleep    10s
+    Close Application
+    Sleep    30s
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    zhangxiuhai
+    sleep    5s
+    Click Element    name=张修海
+    Click Element    id=westone.md.enterprisecontracts:id/collect_layout
+    Sleep    5s
+    Page Should Contain Element    id=westone.md.enterprisecontracts:id/alertTVInfo
+    Page Should Contain Element    同步联系人成功！    同步操作失败
+    Click Element    id=westone.md.enterprisecontracts:id/alertTVConfirm
+    Close Application
+
+10.1.2 支持个人信息中电话号码、邮件复制粘贴
+    [Documentation]    预置条件:
+    ...    1、已登录企业通讯录APP。 "
+    ...
+    ...    操作步骤:
+    ...    "1. 复制并粘贴个人电话信息；
+    ...    2. 复制并粘贴个人邮件信息。"
+    ...
+    ...    预期结果:
+    ...    "1. 允许复制粘贴，拨打电话成功；
+    ...    2. 允许复制粘贴，发送邮件成功。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    zhangxiuhai
+    sleep    5s
+    Click Element    name=张修海
+    Long Press    id=westone.md.enterprisecontracts:id/cellphoneNumberTV
+    sleep    5s
+    ${pram1}    Evaluate    os.system('adb shell input tap 270 555')    os
+    log    ${pram1}
+    sleep    5s
+    Press Keycode    3
+    sleep    5s
+    Click Element    name=拨号
+    Long Press    id=com.android.contacts:id/digits
+    ${pram2}    Evaluate    os.system('adb shell input tap 450 1000')    os
+    log    ${pram2}
+    Click Element    id=com.android.contacts:id/dial_button
+    sleep    5s
+    Page Should Contain Element    name=安全手机研发部-张修海    复制电话信息失败。
+    sleep    3s
+    Click Element    id=westone.md.enterprisecontracts:id/phonecalldialog_framelayout
+    sleep    5s
+    Click Element    id=com.android.incallui:id/endButton
+    Close Application
+    sleep    30s
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    sleep    5s
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    zhangxiuhai
+    sleep    5s
+    Click Element    name=张修海
+    Long Press    id=westone.md.enterprisecontracts:id/emailUpLayout
+    sleep    5s
+    ${pram3}    Evaluate    os.system('adb shell input tap 600 1000')    os
+    log    ${pram3}
+    Close Application
+
+~d11.1.1 对系统通讯录未记录的号码，来电显示企业通讯录中名字
+    [Documentation]    预置条件:
+    ...    "1、企业通讯录已登录；
+    ...    2、系统通讯录中没有企业通讯录中用户A的号码信息。"
+    ...
+    ...    操作步骤:
+    ...    "1. 手机收到用户A的号码来电。"
+    ...
+    ...    预期结果：
+    ...    "1. 能显示企业通讯录中的用户名称。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Close Application
+
+~d11.1.3 企业通讯录中非主号码来电显示名字
+    [Documentation]    预置条件:
+    ...    "1、已登录企业通讯录APP；
+    ...    2、系统通讯录中没有企业通讯录中用户A号码信息。"
+    ...
+    ...    操作步骤:
+    ...    "1. 手机收到用户A非主号码来电。"
+    ...
+    ...    预期结果:
+    ...    "1. 能显示企业通讯录中的名字。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    sleep    10s
+    Close Application
+
+11.1.5 离线登录和退出企业通讯录
+    [Documentation]    预置条件:
+    ...    1、网络连接中断。
+    ...
+    ...    操作步骤:
+    ...    "1. 离线登录企业通讯录APP；
+    ...    2. 操作企业通讯录本地数据，包括但不限于：浏览组织架构/收藏、拨打企业通讯录中人员电话、发送短信、进入已安装的安全应用等；
+    ...    3. 操作企业通讯录在线数据，包括但不限于：更改个人信息、接收消息推送、刷新收藏人员信息、下载安全应用等；
+    ...    4. 离线退出企业通讯录APP。"
+    ...
+    ...    预期结果:
+    ...    "1. 登录成功；
+    ...    2. 操作成功；
+    ...    3. 操作失败；
+    ...    4. 退出成功。
+    ...    "
+    ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
+    log    ${pram}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    : FOR    ${i}    IN RANGE    11
+    \    press keycode    112    #KEYCODE_DEL 退格键 67;KEYCODE_FORWARD_DEL 删除键112
+    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${Atelno}
+    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${Apwd}
+    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in
+    Set Network Connection Status    0
+    sleep    5s
+    Close Application
+    sleep    30s
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    app=${EnterpriseContAPP}    automationName=appium
+    ...    appPackage=westone.md.enterprisecontracts    appActivity=.LogInActivity
+    sleep    10s
+    Click Element    name=安全手机研发部
+    Click Element    name=邓绍虎
+    Page Should Contain Element    id=westone.md.enterprisecontracts:id/contact_detail_Name
+    Page Should Contain Element    id=westone.md.enterprisecontracts:id/contactTitle
+    Page Should Contain Element    id=westone.md.enterprisecontracts:id/addressInfoTV
+    Page Should Contain Text    云华路333号
+    Click Element    id=westone.md.enterprisecontracts:id/contactDetailBack
+    Click Element    id=westone.md.enterprisecontracts:id/backLayout
+    Click Element    name=收藏
+    ${pagesource}    Get Current Context
+    log    ${pagesource}
+    Click Element    name=公司
+    Input Text    id=westone.md.enterprisecontracts:id/company_filter_edit    zhangxiuhai
+    sleep    5s
+    Click Element    name=张修海
+    sleep    5s
+    Click Element    id=westone.md.enterprisecontracts:id/choseCellphoneLayout
+    sleep    15s
+    Page Should Contain Element    name=安全手机研发部-张修海    拨号失败
+    sleep    5s
+    Click Element    id=westone.md.enterprisecontracts:id/phonecalldialog_framelayout
+    sleep    5s
+    Click Element    id=com.android.incallui:id/endButton
+    sleep    10s
+    Click Element    id=westone.md.enterprisecontracts:id/choseMessageLayout
+    sleep    5s
+    Input Text    id=com.android.contacts:id/embedded_text_editor    auto test just ignore it.
+    Click Element    id=com.android.contacts:id/send_message
+    sleep    5s
+    press keycode    4
+    sleep    5s
+    Click Element    id=westone.md.enterprisecontracts:id/choseIMLayout
+    sleep    5s
+    Input Text    id=com.raycom.securesms:id/embedded_text_editor    auto test for using IM, just ignore all.
+    Click Element    id=com.raycom.securesms:id/send_button
+    sleep    5s
+    Click Element    id=westone.md.enterprisecontracts:id/choseVoipLayout
+    [Teardown]    Set Network Connection Status    6
+
+*** Keywords ***
+DealWithException
+    ${Alert}    Page Should Contain Element    id=westone.md.enterprisecontracts:id/alertTV    DEBUG
+    log    ${Alert}
+
+ForPwds
+    [Arguments]    ${teleNo}    ${passwordsPara}
+    : FOR    ${p}    IN    ${passwordsPara}
+    \    Input Text    id=westone.md.enterprisecontracts:id/log_in_activity_cellphone_number    ${teleNo}
+    \    Input Password    id=westone.md.enterprisecontracts:id/log_in_activity_password    ${p}
+    \    Click Element    id=westone.md.enterprisecontracts:id/log_in_activity_remember_password
+    \    click Element    id=westone.md.enterprisecontracts:id/log_in_activity_log_in

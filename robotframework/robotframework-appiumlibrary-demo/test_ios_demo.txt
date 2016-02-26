@@ -1,0 +1,9 @@
+*** Settings ***
+Documentation     demo for appium library
+Force Tags        demo
+
+*** Test Cases ***
+test_demo
+    [Tags]    regression
+    TestStart
+    Reset Application
