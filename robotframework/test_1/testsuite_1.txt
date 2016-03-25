@@ -17,6 +17,7 @@ test1
     log    ${yyyy}${mm}${dd}.txt
     create directory    ${newPath}/Log_${yyyy}${mm}${dd}_${random}/
     Create File    ${newPath}/Log_${yyyy}${mm}${dd}_${random}/Log_${yyyy}${mm}${dd}_${random}.txt    hello, world!
+    Swipe    250    0    250    500
 
 test_install
     #Evaluate    os.system('appium -a 192.168.4.153 -p 4723 --no-reset')    os
@@ -47,8 +48,27 @@ test2
     copy file    Y:\\IM\\${flag}\\app-release.apk    D:\\apps\\
 
 test3
+    [Tags]    test
     ${ip}    run    ipconfig
     log    ${ip}
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.android.settings
+    ...    appActivity=.HWSettings
+    Cswipe    250    1000    250    250
+    Wait Until Page Contains    锁屏和密码    30s    check failed!
+    Click Element    name=锁屏和密码
+    Wait Until Page Contains    锁屏密码    30s    check failed!
+    Click Element    name=锁屏密码
+    Wait Until Page Contains    请输入解锁密码    30s    check failed!
+    Wait Until Page Contains Element    id=com.android.settings:id/password_entry    30s    check failed!
+    Input Password    id=com.android.settings:id/password_entry    1234
+    Click Element    id=com.android.settings:id/next_button
+    Wait Until Page Contains    无密码    30s    check failed!
+    Click Element    name=无密码
+    Wait Until Page Contains    关闭指纹校验功能    30s    check failed!
+    Click Element    id=android:id/button1
+    Wait Until Page Contains    无密码    30s    check failed!
+    Close Application
 
 pullHprofFile
     ${pram}    Evaluate    os.system('adb shell pm clear westone.md.enterprisecontracts')    os
