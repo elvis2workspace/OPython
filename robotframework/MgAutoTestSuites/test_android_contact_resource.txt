@@ -7,7 +7,7 @@ ${PLATFORM_NAME}    Android
 ${PLATFORM_VERSION}    4.4
 ${DEVICE_NAME}    nubia
 ${MiyuAPP}        D:\/apps\/Miyu.apk
-${TELE_NUMBER}    15881172615
+${TELE_NUMBER}    15828073744
 ${EnterpriseContApp}    D:\/apps\/EnterpriseContact.apk
 ${Atelno}         13402838201
 ${Bname}          yanbinbin
