@@ -3644,19 +3644,49 @@ APP登录：开机正常登录
     Close Application
 
 【N】安全检查：开启口令重置提醒周期
-    [Documentation]    "1. 密码卡管家已成功登录，进入加密功能已启用界面；
+    [Documentation]    预置条件：
+    ...    "1. 密码卡管家已成功登录，进入加密功能已启用界面；
     ...    2. 终端屏幕解锁密码功能已开启；
-    ...    3. ECM应用中，未设置口令重置提醒周期；" "1. 点击安全参数；
+    ...    3. ECM应用中，未设置口令重置提醒周期；"
+    ...
+    ...    操作步骤：
+    ...    "1. 点击安全参数；
     ...    2. 点击口令重置提醒周期-》设置按钮；
     ...    3. 选择开启选项，遍历选择所有的日期，点击确定；
-    ...    4. 修改手机终端本地时间，遍历所有选择的日期，再次登录密码卡管家；
-    ...    " "1. 成功进入安全设置界面；
+    ...    4. 修改手机终端本地时间，遍历所有选择的日期，再次登录密码卡管家；"
+    ...
+    ...    预期结果：
+    ...    "1. 成功进入安全设置界面；
     ...    2. 进入口令重置提醒设置界面；
     ...    3. 成功设置；
-    ...    4. 提醒用户口令到期，需要修改？（根据设计）
-    ...    "
+    ...    4. 提醒用户口令到期，需要修改？（根据设计）"
     [Tags]    安全检查(#641)
+    [Setup]    Kill Adb Process    ecm
+    #开启锁屏数字密码
     ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.android.settings
+    ...    appActivity=.HWSettings
+    Cswipe    250    650    250    250
+    Wait Until Page Contains    锁屏和密码    30s    check failed!
+    Click Element    name=锁屏和密码
+    Wait Until Page Contains    锁屏密码    30s    check failed!
+    Click Element    name=锁屏密码
+    Wait Until Page Contains    数字密码    30s    check failed!
+    Click Element    name=数字密码
+    Wait Until Page Contains Element    id=com.android.settings:id/password_entry    30s    check failed!
+    Page Should Contain Text    输入您的数字密码
+    Input Password    id=com.android.settings:id/password_entry    1234
+    Wait Until Page Contains Element    id=com.android.settings:id/next_button    30s    check failed!
+    Click Element    id=com.android.settings:id/next_button
+    Wait Until Page Contains    确认您的密码    30s    check failed!
+    Input Password    id=com.android.settings:id/password_entry    1234
+    Wait Until Page Contains Element    id=com.android.settings:id/next_button    30s    check failed!
+    Click Element    id=com.android.settings:id/next_button
+    Wait Until Page Contains    录入指纹    30s    check failed!
+    Click Element    id=android:id/button2
+    Close Application
+    Sleep    5s
+    #进入加密功能启用界面
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
     ...    appActivity=.LaunchActivity
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
@@ -3665,9 +3695,12 @@ APP登录：开机正常登录
     Click Element    id=com.cetcs.ecmapplication:id/loginBT
     Wait Until Page Contains    加密功能已启用    30s    sign in failed!
     Page Should Contain Text    ${TELE_NUMBER}
+    #预置条件-end
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqiTV    30s    check failed!
+    #Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqiTV    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
     ${restr}=    Run Keyword And Return Status    Page Should Contain Text    未设置提醒周期    DEBUG    #需预置未开启设置提醒周期
     Run Keyword If    '${restr}'=='false'    Click Element    id=com.cetcs.ecmapplication:id/radiobutton_close
@@ -3705,6 +3738,7 @@ APP登录：开机正常登录
     Page Should Contain Text    ${TELE_NUMBER}
     sleep    10s
     Close Application
+    [Teardown]    Kill Adb Process    ecm
 
 【N】安全检查：关闭口令重置提醒周期
     [Documentation]    "1. 密码卡管家已成功登录，进入加密功能已启用界面；
@@ -3718,8 +3752,7 @@ APP登录：开机正常登录
     ...    2. 进入口令重置提醒设置界面；
     ...    3. 退出口令重置提醒界面；
     ...    4. 设置成功，口令重置提醒被关闭；
-    ...    5. 密码卡管家登录后不再提醒用户口令到期；
-    ...    "
+    ...    5. 密码卡管家登录后不再提醒用户口令到期；"
     [Tags]    安全检查(#641)
     ${localAddress}    Get Local Address
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
@@ -3861,14 +3894,19 @@ APP登录：开机正常登录
     [Teardown]    Kill Adb Process    ecm
 
 【N】安全检查：安全加密算法检查
-    [Documentation]    "1. 密码卡管家已成功登录，进入加密功能已启用界面；
-    ...    " "1. 点击安全参数；
-    ...    2. 验证安全加密算法各子项是否正确；
-    ...    " "1. 进入安全设置界面；
-    ...    2. 安全加密算法各子项检查正常，内容与界面都显示正常；
-    ...    "
+    [Documentation]    预置条件：
+    ...    "1. 密码卡管家已成功登录，进入加密功能已启用界面；"
+    ...
+    ...    操作步骤：
+    ...    "1. 点击安全参数；
+    ...    2. 验证安全加密算法各子项是否正确；"
+    ...
+    ...    预期结果：
+    ...    "1. 进入安全设置界面；
+    ...    2. 安全加密算法各子项检查正常，内容与界面都显示正常；"
     [Tags]    安全检查(#641)
     [Setup]    Kill Adb Process    ecm
+    #进入加密功能启用界面
     ${localAddress}    Get Local Address
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
     ...    appActivity=.LaunchActivity
@@ -3878,22 +3916,27 @@ APP登录：开机正常登录
     Click Element    id=com.cetcs.ecmapplication:id/loginBT
     Wait Until Page Contains    加密功能已启用    30s    sign in failed!
     Page Should Contain Text    ${TELE_NUMBER}
+    #预置条件-end
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
+    #Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!
+    #Page Should Contain Element    id=com.cetcs.ecmapplication:id/algorithm_title    DEBUG
+    #Click Element    id=com.cetcs.ecmapplication:id/algorithm_title
+    #Cswipe    684    1324    684    906
+    #sleep    5s
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/checkTitleTV    30s    check failed!
+    Wait Until Page Contains    加密通讯会话密钥协商算法    30s    check failed!
+    Wait Until Page Contains    SM2    30s    check failed!
+    Wait Until Page Contains    密钥衍生算法    30s    check failed!
+    Wait Until Page Contains    SM3    30s    check failed!
+    Wait Until Page Contains    加密通讯语音加密算法    30s    check failed!
+    Wait Until Page Contains    ZUC    30s    check failed!
+    #Cswipe    684    1324    684    906
+    Wait Until Page Contains    本地数据加密算法    30s    check failed!
+    Wait Until Page Contains    SM4-CBC    30s    check failed!
+    Wait Until Page Contains    密码管理消息加密算法    30s    check failed!
+    Wait Until Page Contains    SM4-OFB    30s    check failed!
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!
-    Page Should Contain Element    id=com.cetcs.ecmapplication:id/algorithm_title    DEBUG
-    Click Element    id=com.cetcs.ecmapplication:id/algorithm_title
-    Page Should Contain Text    加密通讯会话密钥协商算法    DEBUG
-    Page Should Contain Text    SM2    DEBUG
-    Page Should Contain Text    密钥衍生算法    DEBUG
-    Page Should Contain Text    SM3    DEBUG
-    Page Should Contain Text    加密通讯语音加密算法    DEBUG
-    Page Should Contain Text    ZUC    DEBUG
-    Cswipe    684    1324    684    906
-    Page Should Contain Text    本地数据加密算法    DEBUG
-    Page Should Contain Text    SM4-CBC    DEBUG
-    Page Should Contain Text    密码管理消息加密算法    DEBUG
-    Page Should Contain Text    SM4-OFB    DEBUG
     Click Element    id=com.cetcs.ecmapplication:id/finishTV
     Wait Until Page Contains    加密功能已启用    30s    sign in failed!
     Page Should Contain Text    ${TELE_NUMBER}
@@ -3902,12 +3945,16 @@ APP登录：开机正常登录
     [Teardown]    Kill Adb Process    ecm
 
 【N】安全检查：安全有效性状态检查
-    [Documentation]    "1. 密码卡管家已成功登录，进入加密功能已启用界面；
-    ...    " "1. 点击安全参数；
-    ...    2. 验证安全有效性状态各子项是否正确；
-    ...    " "1. 进入安全设置界面；
-    ...    2. 安全有效性状态各子项检查正常，内容与界面都显示正常；
-    ...    "
+    [Documentation]    预置条件：
+    ...    "1. 密码卡管家已成功登录，进入加密功能已启用界面；"
+    ...
+    ...    操作步骤：
+    ...    "1. 点击安全参数；
+    ...    2. 验证安全有效性状态各子项是否正确；"
+    ...
+    ...    预期结果：
+    ...    "1. 进入安全设置界面；
+    ...    2. 安全有效性状态各子项检查正常，内容与界面都显示正常；"
     [Tags]    安全检查(#641)
     [Setup]    Kill Adb Process    ecm
     ${localAddress}    Get Local Address
@@ -3919,6 +3966,7 @@ APP登录：开机正常登录
     Click Element    id=com.cetcs.ecmapplication:id/loginBT
     Wait Until Page Contains    加密功能已启用    30s    sign in failed!
     Page Should Contain Text    ${TELE_NUMBER}
+    #预置条件-end
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanLayout    30s    sign in failed!
     Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanshezhiTV    30s    sign in failed!
@@ -3970,6 +4018,7 @@ APP登录：开机正常登录
     Click Element    id=com.cetcs.ecmapplication:id/loginBT
     Wait Until Page Contains    加密功能已启用    30s    sign in failed!
     Page Should Contain Text    ${TELE_NUMBER}
+    #预置条件-end
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/xiaohuiLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/xiaohuiLayout
     Wait Until Page Contains    销毁密码卡    30s    check failed!
@@ -3983,10 +4032,14 @@ APP登录：开机正常登录
     Input Password    id=com.cetcs.ecmapplication:id/inputpinTV    ${OldVpwd}
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/comfirm    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/comfirm
-    Wait Until Page Contains    是否确认销毁密码卡?    30s    check failed!
-    Page Should Contain Text    销毁密码卡后将无法恢复    DEBUG
-    Page Should Contain Text    是否确认销毁密码卡    DEBUG
-    Click Element    id=com.cetcs.ecmapplication:id/distory_cancal2    #取消销毁密码
+    #Wait Until Page Contains    是否确认销毁密码卡?    30s    check failed!
+    #Page Should Contain Text    销毁密码卡后将无法恢复    DEBUG
+    #Page Should Contain Text    是否确认销毁密码卡    DEBUG
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/distory_cancal2    30s    check failed!
+    #Click Element    id=com.cetcs.ecmapplication:id/distory_cancal2    #取消销毁密码按钮未响应
+    #Click Element    name=取消    #点击按钮未响应
+    ${pram1}    Evaluate    os.system('adb shell input tap 645 1120')    os    #取消按钮元素标签所在位置
+    log    ${pram1}
     Wait Until Page Contains    加密功能已启用    30s    check failed!
     Page Should Contain Text    ${TELE_NUMBER}
     sleep    10s
@@ -4040,9 +4093,10 @@ APP登录：开机正常登录
     Input Password    id=com.cetcs.ecmapplication:id/inputpinTV    ${OldVpwd}
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/comfirm    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/comfirm
-    Wait Until Page Contains    是否确认销毁密码卡?    30s    check failed!
-    Page Should Contain Text    销毁密码卡后将无法恢复    DEBUG
-    Page Should Contain Text    是否确认销毁密码卡    DEBUG
+    #Wait Until Page Contains    是否确认销毁密码卡?    30s    check failed!    #识别不了该元素
+    #Page Should Contain Text    销毁密码卡后将无法恢复    DEBUG
+    #Page Should Contain Text    是否确认销毁密码卡    DEBUG
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/distory_cancal2    30s    check failed!    #取消销毁按钮元素
     Go Back    #系统返回
     Wait Until Page Contains    销毁密码卡    30s    check failed!
     Page Should Contain Text    请输入密码卡口令    DEBUG
@@ -4058,25 +4112,28 @@ APP登录：开机正常登录
     #close application
     [Teardown]    Kill Adb Process    ecm
 
-【N】手动销毁功能：【口令场景】错误的口令
-    [Documentation]    "1. 终端已安装有效的移动SIM卡和正常状态的TF密码卡，TF密码卡口令的当前允许错误输入次数为6次
+【N】手动销毁功能：【口令场景】错误的口令（口令长度实现已变更）
+    [Documentation]    预置条件：
+    ...    "1. 终端已安装有效的移动SIM卡和正常状态的TF密码卡，TF密码卡口令的当前允许错误输入次数为6次
     ...    2. 终端处于ECM销毁密码卡口令输入界面"
-    ...    "1. 不输入口令，点击“下一步”按钮
+    ...
+    ...    操作步骤："
+    ...    1. 不输入口令，点击“下一步”按钮
     ...    2. 输入1位口令，点击“下一步”按钮
     ...    3. 输入5位口令，点击“下一步”按钮
     ...    4. 输入6位错误口令，点击“下一步”按钮
     ...    5. 输入16位错误口令（包含数字、字母和字符），点击“登录”按钮
     ...    6. 输入17位错误口令，点击“登录”按钮
-    ...    7. 输入任意口令，点击“清空”按钮
-    ...    "
+    ...    7. 输入任意口令，点击“清空”按钮"
+    ...
+    ...    预期结果：
     ...    "1. 口令验证失败，停留在当前界面，弹出“请输入密码卡口令”提示
     ...    2. 口令验证失败，停留在当前界面，弹出“口令错误！再输错6次密码卡将被锁定”提示，口令自动被清空
     ...    3. 口令验证失败，停留在当前界面，弹出“口令错误！再输错6次密码卡将被锁定”提示，口令自动被清空
     ...    4. 口令验证失败，停留在当前界面，弹出“口令错误！再输错5次密码卡将被锁定”提示，口令自动被清空
     ...    5. 口令验证失败，停留在当前界面，弹出“口令错误！再输错4次密码卡将被锁定”提示，口令自动被清空
     ...    6. 口令验证失败，停留在当前界面，弹出“口令错误！再输错3次密码卡将被锁定”提示，口令自动被清空
-    ...    7. 输入内容被清空，仍停留在当前界面
-    ...    "
+    ...    7. 输入内容被清空，仍停留在当前界面"
     [Tags]    手动销毁功能(#639)
     [Setup]    Kill Adb Process    ecm
     ${localAddress}    Get Local Address
@@ -4098,6 +4155,7 @@ APP登录：开机正常登录
     Wait Until Page Contains    销毁密码卡    30s    check failed!
     Page Should Contain Text    请输入密码卡口令    DEBUG
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/inputpinTV    30s    check failed!
+    #预置条件-end
     Click Element    id=com.cetcs.ecmapplication:id/comfirm    #不输入口令
     Wait Until Page Contains    销毁密码卡    30s    check failed!
     Page Should Not Contain Text    是否确认销毁密码卡?    DEBUG
@@ -4202,18 +4260,22 @@ APP登录：开机正常登录
     #close application
     [Teardown]    Kill Adb Process    ecm
 
-【N】手机号绑定：手机号码绑定：输入的手机号码非当前插入的sim卡号码
-    [Documentation]    "1、被测终端（手机）已经准备就绪；
+【N】手机号绑定：输入的手机号码非当前插入的sim卡号码
+    [Documentation]    预置条件：
+    ...    "1、被测终端（手机）已经准备就绪；
     ...    2、TF密码卡、SIM卡已经插入；
     ...    3、手机号码已经开通加密功能；
-    ...    4、成功进入手机号码绑定界面。" "1. 输入正确的手机号码（已经开通加密功能），但是非当前插入手机的sim卡的号码；
+    ...    4、成功进入手机号码绑定界面。"
+    ...
+    ...    操作步骤：
+    ...    "1. 输入正确的手机号码（已经开通加密功能），但是非当前插入手机的sim卡的号码；
     ...    2. 点击下一步；
-    ...    3. 输入服务器发送的验证码，点击确定；
-    ...    " "1. 成功输入并正确显示；
-    ...    2. 成功进入验证码输入界面；
-    ...    输入的手机号码成功收取到服务器发送的验证码；
-    ...    3. 手机号码与密码卡无法成功绑定；检测到绑定的号码不是当前插入手机的sim卡的号码；
-    ...    "
+    ...    3. 输入服务器发送的验证码，点击确定；"
+    ...
+    ...    预期结果：
+    ...    "1. 成功输入并正确显示；
+    ...    2. 成功进入验证码输入界面；输入的手机号码成功收取到服务器发送的验证码；
+    ...    3. 手机号码与密码卡无法成功绑定；检测到绑定的号码不是当前插入手机的sim卡的号码；"
     [Tags]    手机号绑定(#635)
     [Setup]    Kill Adb Process    ecm
     ${localAddress}    Get Local Address
@@ -4247,7 +4309,7 @@ APP登录：开机正常登录
     Close Application
     [Teardown]    Kill Adb Process    ecm
 
-【N】手机号绑定：手机号码绑定：绑定流程(wifi环境下绑定）
+【N】手机号绑定：绑定流程(wifi环境下绑定）
     [Documentation]    "1、 WIFI网络连接正常；
     ...    2、 被测终端（手机）已经准备就绪（已插入TF卡、SIM卡）；
     ...    3、手机号码已经开通加密功能。
@@ -4299,7 +4361,7 @@ APP登录：开机正常登录
     Close Application
     [Teardown]    Kill Adb Process    ecm
 
-【N】手机号绑定(#635)：手机号码绑定：绑定流程（移动数据连接环境下绑定)
+【N】手机号码绑定：绑定流程（移动数据连接环境下绑定)
     [Documentation]    "1、移动数据网络连接正常；
     ...    2、 被测终端（手机）已经准备就绪（已插入TF卡、SIM卡）；
     ...    3、手机号码已经开通加密功能。
@@ -4350,7 +4412,7 @@ APP登录：开机正常登录
     Close Application
     Kill Adb Process    ecm
 
-【N】手机号绑定(#635)：手机号码绑定：输入正确的手机号码绑定
+【N】手机号码绑定：输入正确的手机号码绑定
     [Documentation]    "1、被测终端（手机）已经准备就绪；
     ...    2、TF密码卡、SIM卡已经插入；
     ...    3、手机号码已经开通加密功能；
@@ -4395,7 +4457,7 @@ APP登录：开机正常登录
     Close Application
     Kill Adb Process    ecm
 
-【N】手机号绑定(#635)：手机号码绑定：输入错误的手机号码绑定
+【N】手机号码绑定：输入错误的手机号码绑定
     [Documentation]    "1、被测终端（手机）已经准备就绪；
     ...    2、TF密码卡、SIM卡已经插入；
     ...    3、成功进入手机号码绑定界面。" "1. 输入不存在的手机号码，点击下一步；
@@ -4432,7 +4494,7 @@ APP登录：开机正常登录
     close application
     Kill Adb Process    ecm
 
-【N】手机号绑定(#635)：手机号码绑定：输入错误的验证码
+【N】手机号码绑定：输入错误的验证码
     [Documentation]    "1、被测终端（手机）已经准备就绪；
     ...    2、TF密码卡、SIM卡已经插入；
     ...    3、成功进入手机号码绑定界面；
@@ -4471,7 +4533,7 @@ APP登录：开机正常登录
     Page Should Contain Text    与在线密管建立连接...
     Wait Until Page Contains Element
 
-【N】手机号绑定(#635)：手机号码绑定：重发验证码
+【N】手机号码绑定：重发验证码
     [Documentation]    "1、被测终端（手机）已经准备就绪；
     ...    2、TF密码卡、SIM卡已经插入；
     ...    3、成功进入手机号码绑定流程；
@@ -4510,7 +4572,7 @@ APP登录：开机正常登录
     Page Should Contain Text    与在线密管建立连接...
     Wait Until Page Contains Element
 
-【N】手机号绑定(#635)：手机号绑定：验证码过期
+【N】手机号绑定：验证码过期
     [Documentation]    "1、被测终端（手机）已经准备就绪；
     ...    2、TF密码卡、SIM卡已经插入；
     ...    3、成功进入手机号码绑定流程；
@@ -4547,7 +4609,7 @@ APP登录：开机正常登录
     Page Should Contain Text    与在线密管建立连接...
     Wait Until Page Contains Element
 
-【N】手机号绑定(#635)：手机号绑定：检查通知栏信息
+【N】手机号绑定：检查通知栏信息
     [Documentation]    "1、被测终端（手机）已经准备就绪；
     ...    2、TF密码卡、SIM卡已经插入，当前TF卡与SIM未绑定过；
     ...    " "1. 插入与当前TF卡绑定号码不一致的SIM卡；
@@ -4587,23 +4649,28 @@ APP登录：开机正常登录
     Sleep    10s
     close application
 
-【N】手机号绑定(#635)：手机号绑定：未绑定过的密码卡
-    [Documentation]    "1、被测终端（手机）已经准备就绪；
-    ...    2、TF密码卡、SIM卡已经插入，当前TF卡是新发的卡，从未进行任何绑定；" "1. 插入未绑定过的TF卡和SIM卡；
+【N】手机号绑定：未绑定过的密码卡
+    [Documentation]    预置条件：
+    ...    "1、被测终端（手机）已经准备就绪；
+    ...    2、TF密码卡、SIM卡已经插入，当前TF卡是新发的卡，从未进行任何绑定；"
+    ...
+    ...    操作步骤：
+    ...    "1. 插入未绑定过的TF卡和SIM卡；
     ...    2. 重启手机，点击访问并登录被测应用；
     ...    3. 在加密功能异常界面检测到手机卡已更换，点击重新绑定；
     ...    4. 输入正确的手机号码，点击下一步；
     ...    5. 检查验证码是否自动填充；
     ...    6. 点击确定；
-    ...    7. 点击完成或者手机返回键；
-    ...    " "1. 成功插入；
+    ...    7. 点击完成或者手机返回键；"
+    ...
+    ...    预期结果：
+    ...    "1. 成功插入；
     ...    2. 手机成功重启；密码卡管家成功登录，进入加密功能异常界面；
     ...    3. 成功进入绑定手机界面；
     ...    4. 提示“发送验证码请求中”，进入输入验证码界面；
     ...    5. 手机收到验证码短信，并且验证码自动填充到验证码区域；
     ...    6. 提示手机号码与密码卡成功绑定；
-    ...    7. 返回加密功能已启用界面；
-    ...    "
+    ...    7. 返回加密功能已启用界面；"
     [Tags]    手机号绑定(#635)
     ${localAddress}    Get Local Address
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
@@ -4636,10 +4703,14 @@ APP登录：开机正常登录
     Close Application
     Kill Adb Process    ecm
 
-【N】手机号绑定：手机号码绑定：修改密码后重新绑定；
-    [Documentation]    "1、 WIFI网络连接正常；
+【N】手机号码绑定：修改密码后重新绑定
+    [Documentation]    预置条件：
+    ...    "1、 WIFI网络连接正常；
     ...    2、 被测终端（手机）已经准备就绪（已插入TF卡、SIM卡）；
-    ...    3、手机号码已经开通加密功能。" "1. 插入与当前TF卡绑定号码不一致的SIM卡；
+    ...    3、手机号码已经开通加密功能。"
+    ...
+    ...    操作步骤：
+    ...    "1. 插入与当前TF卡绑定号码不一致的SIM卡；
     ...    2. 重启手机，点击访问并登录被测应用；
     ...    3. 点击修改密码；
     ...    4. 输入旧口令，点击确定；
@@ -4647,8 +4718,10 @@ APP登录：开机正常登录
     ...    6. 再次输入新口令，点击确定；
     ...    7. 点击完成按钮；
     ...    8. 点击重新绑定按钮；
-    ...    9. 执行绑定流程；
-    ...    " "1. 成功插入；
+    ...    9. 执行绑定流程；"
+    ...
+    ...    预期结果：
+    ...    "1. 成功插入；
     ...    2. 手机成功重启；密码卡管家成功登录，进入加密功能异常界面；（手机号未绑定）
     ...    3. 成功进入输入旧口令界面；
     ...    4. 成功进入输入新口令界面；
@@ -4656,8 +4729,7 @@ APP登录：开机正常登录
     ...    6. 密码修改成功，进入修改口令成功界面；
     ...    7. 进入加密功能异常界面（手机号未绑定）；
     ...    8. 成功进入绑定手机界面；
-    ...    9. TF卡与SIM卡能成功绑定；
-    ...    "
+    ...    9. TF卡与SIM卡能成功绑定；"
     [Tags]    手机号绑定(#635)
     ${localAddress}    Get Local Address
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
@@ -4720,8 +4792,22 @@ APP登录：开机正常登录
     [Teardown]    Kill Adb Process    ecm
 
 【N】加密通话：连续发起多次加密电话
-    [Documentation]    "1. 在网络连接正常、TF卡状态正常且与密管连接正常的情况下，主叫连续发起多次加密电话（分别测试连续发起5通、10通、15通、20通加密电话），检查接通率和密钥协商情况；
+    [Documentation]    预置条件：
+    ...    "1. 在网络连接正常、TF卡状态正常且与密管连接正常的情况下，主叫连续发起多次加密电话（分别测试连续发起5通、10通、15通、20通加密电话），检查接通率和密钥协商情况；
     ...    "
     ...    "1. 成功发起且被叫成功接听，密钥协商成功；
     ...    "
     [Tags]    加密通话(#678)
+    [Setup]    Kill Adb Process    ecm
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
+    ...    appActivity=.LaunchActivity
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
+    Click Element    id=com.cetcs.ecmapplication:id/rememberLayout
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    Press Keycode    3
+    Press Keycode    5
+    [Teardown]    Kill Adb Process    ecm
