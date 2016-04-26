@@ -196,29 +196,30 @@ Resource          test_android_contact_resource.txt
     ...    appActivity=.LaunchActivity
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
     Click Element    id=com.cetcs.ecmapplication:id/rememberLayout
-    Click Element    id=com.cetcs.ecmapplication:id/loginBT
-    Page Should Contain Element    id=com.cetcs.ecmapplication:id/mComplexEditText    DEBUG    #不输入密码是点击登录按钮
-    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    1
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT    #不输入密码是点击登录按钮
+    Wait Until Page Does Not Contain Element    id=com.cetcs.ecmapplication:id/errorTV    30s    check failed!
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/mComplexEditText    DEBUG
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    1    #1位passsword
     Click Element    id=com.cetcs.ecmapplication:id/loginBT
     Wait Until Page Does Not Contain Element    id=com.cetcs.ecmapplication:id/errorTV    30s    check failed!
     Page Should Contain Text    请输入密码卡口令    DEBUG
-    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    12345
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    2345    #5位password
     Click Element    id=com.cetcs.ecmapplication:id/loginBT
     Wait Until Page Does Not Contain Element    id=com.cetcs.ecmapplication:id/errorTV    30s    check failed!
     Page Should Contain Text    请输入密码卡口令    DEBUG
-    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    123457
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    7    #6位错误password
     Click Element    id=com.cetcs.ecmapplication:id/loginBT
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/errorTV    30s    check failed!
     Page Should Contain Text    再输错5次密码卡将被锁定    DEBUG
-    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    12345error123456
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    12345error123456    #16位错误password
     Click Element    id=com.cetcs.ecmapplication:id/loginBT
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/errorTV    30s    check failed!
     Page Should Contain Text    再输错4次密码卡将被锁定    DEBUG
-    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    12345error1234567    #实现与描述不符
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    12345error1234567    #输入17位password
     Click Element    id=com.cetcs.ecmapplication:id/loginBT
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/errorTV    30s    check failed!
     Page Should Contain Text    再输错3次密码卡将被锁定    DEBUG
-    Input Password    id=com.cetcs.ecmapplication:id/mComplexEditText    12345error1234567
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    12345error123456
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/pwdClearIV    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/pwdClearIV
     Page Should Contain Text    请输入密码卡口令    DEBUG
