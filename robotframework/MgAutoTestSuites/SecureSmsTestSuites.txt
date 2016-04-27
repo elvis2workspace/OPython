@@ -3,7 +3,6 @@ Suite Setup
 Library           AppiumLibrary
 Library           CustomLibrary
 Library           OperatingSystem
-Resource          test_android_contact_resource.txt
 
 *** Variables ***
 ${testtext60}     This is just a auto test content about miyu, no attention, i9@&*&*zhangxiuhaidahfdfkdfajdflahdfa%^&*60

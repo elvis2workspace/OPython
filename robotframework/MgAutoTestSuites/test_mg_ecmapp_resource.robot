@@ -5,7 +5,7 @@ Library           AppiumLibrary
 ${REMOTE_URL}     http://192.168.4.81:4723/wd/hub
 ${PLATFORM_NAME}    Android
 ${PLATFORM_VERSION}    4.4
-${DEVICE_NAME}    nubia
+${DEVICE_NAME}    APU0215C03002261
 ${MiyuAPP}        D:\/apps\/Miyu.apk
 ${TELE_NUMBER}    15828073744
 ${EnterpriseContApp}    D:\/apps\/EnterpriseContact.apk

@@ -3,7 +3,7 @@ Suite Setup       Evaluate    os.system('adb shell input keyevent 82')    os
 Suite Teardown    Run Keyword If Any Critical Tests Failed    Close Application    # 执行失败关闭应用程序
 Library           AppiumLibrary
 Library           CustomLibrary
-Resource          test_android_contact_resource.txt
+Resource          test_android_contact_resource.robot
 
 *** Test Cases ***
 密码卡开机登录：正确的简单口令登录

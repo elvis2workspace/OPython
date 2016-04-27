@@ -1,9 +1,10 @@
 *** Settings ***
 Suite Setup
-Suite Teardown    Run Keyword If Any Critical Tests Failed    Close Application    # 执行失败关闭应用程序
+Suite Teardown
+Test Teardown
 Library           AppiumLibrary
 Library           CustomLibrary
-Resource          test_android_contact_resource.txt
+Resource          test_mg_ecmapp_resource.robot
 
 *** Test Cases ***
 【N】用户登录解锁:【入口】通知栏
@@ -66,11 +67,13 @@ Resource          test_android_contact_resource.txt
     Wait Until Page Contains    密码卡管家    30s    check failed!
     Click Element    name=密码卡管家
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginHint    30s    check failed!    #登录提示
+    Go Back
     Page Should Contain Text    请输入密码卡口令    DEBUG
     Page Should Contain Element    id=com.cetcs.ecmapplication:id/mComplexEditText    DEBUG    #密码输入框
     Page Should Contain Element    id=com.cetcs.ecmapplication:id/loginBT    DEBUG    #登录按钮
     Page Should Contain Element    id=com.cetcs.ecmapplication:id/rememberLayout    DEBUG    #记住口令
     Page Should Contain Element    id=com.cetcs.ecmapplication:id/forgetPWD    DEBUG    #忘记密码
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/chaIV    DEBUG    #停止登录
     sleep    20s    #待系统稳定
     Close Application
     [Teardown]    Kill Adb Process    ecm
@@ -284,14 +287,14 @@ Resource          test_android_contact_resource.txt
     Wait Until Page Contains    加密功能已启用    60s    sign in failed!
     Page Should Contain Text    ${TELE_NUMBER}
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanLayout    30s    check failed!
+    Close Application
     Kill Adb Process    ecm
     Sleep    30s
-    Cswipe    250    0    250    500
-    Wait Until Page Contains    加密功能已启用    30s    check failed!
-    Page Should Contain Text    请放心使用加密通讯功能    DEBUG
-    Click Element    name=加密功能已启用
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
+    ...    appActivity=.LaunchActivity
     Wait Until Page Contains    ${TELE_NUMBER}    30s    check failed!
     Page Should Contain Text    加密功能已启用    DEBUG
+    #初始化环境-teardown
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!

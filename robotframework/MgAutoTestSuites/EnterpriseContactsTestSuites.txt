@@ -2,7 +2,6 @@
 Suite Setup
 Suite Teardown    Run Keyword If Any Critical Tests Failed    Close Application
 Library           AppiumLibrary
-Resource          test_android_contact_resource.txt
 Library           CustomLibrary
 
 *** Test Cases ***
