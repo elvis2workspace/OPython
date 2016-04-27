@@ -3,7 +3,7 @@ Suite Setup       Evaluate    os.system('adb shell input keyevent 82')    os
 Suite Teardown    Run Keyword If Any Critical Tests Failed    Close Application    # 执行失败关闭应用程序
 Library           AppiumLibrary
 Library           CustomLibrary
-Resource          test_android_contact_resource.robot
+Resource          test_mg_ecmapp_resource.robot
 
 *** Test Cases ***
 密码卡开机登录：正确的简单口令登录
@@ -4284,7 +4284,7 @@ APP登录：开机正常登录
     #close application
     [Teardown]    Kill Adb Process    ecm
 
-【N】手机号绑定：输入的手机号码非当前插入的sim卡号码
+~【N】手机号绑定：输入的手机号码非当前插入的sim卡号码
     [Documentation]    预置条件：
     ...    "1、被测终端（手机）已经准备就绪；
     ...    2、TF密码卡、SIM卡已经插入；
@@ -4313,7 +4313,7 @@ APP登录：开机正常登录
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV    30s    failed!
     Click Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV
     Wait Until Page Contains    请输入开通加密功能的手机号码进行绑定    30s    sign in failed!
-    Input Text    id=com.cetcs.ecmapplication:id/phonenumberET    ${TELE_NUMBER}
+    Input Text    id=com.cetcs.ecmapplication:id/phonenumberET    ${OTHERECM_TELE}
     click element    id=com.cetcs.ecmapplication:id/mSingleButton
     Wait Until Page Contains    ${TELE_NUMBER}    30s    failed!
     Wait Until Page Contains    30秒后重发    30s    failed!
@@ -4332,169 +4332,26 @@ APP登录：开机正常登录
     sleep    30s
     Close Application
     [Teardown]    Kill Adb Process    ecm
-
-【N】手机号绑定：绑定流程(wifi环境下绑定）
-    [Documentation]    "1、 WIFI网络连接正常；
-    ...    2、 被测终端（手机）已经准备就绪（已插入TF卡、SIM卡）；
-    ...    3、手机号码已经开通加密功能。
-    ...    " "1. 插入与当前TF卡绑定号码不一致的SIM卡；
-    ...    2. 重启手机，点击访问并登录被测应用；
-    ...    3. 在加密功能异常界面检测到手机卡已更换，点击重新绑定；
-    ...    4. 输入正确的手机号码，点击下一步；
-    ...    5. 检查验证码是否自动填充；
-    ...    6. 点击确定；
-    ...    7. 点击完成或者手机返回键；
-    ...    " "1. 成功插入；
-    ...    2. 手机成功重启；密码卡管家成功登录，进入加密功能异常界面；
-    ...    3. 成功进入绑定手机界面；
-    ...    4. 提示“发送验证码请求中”，进入输入验证码界面；
-    ...    5. 手机收到验证码短信，并且验证码自动填充到验证码区域；
-    ...    6. 提示手机号码与密码卡成功绑定；
-    ...    7. 返回加密功能已启用界面；
-    ...    "
-    [Tags]    手机号绑定(#635)
-    [Setup]    Kill Adb Process    ecm
-    ${localAddress}    Get Local Address
-    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
-    ...    appActivity=.LaunchActivity
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
-    Click Element    id=com.cetcs.ecmapplication:id/rememberLayout
-    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
-    Click Element    id=com.cetcs.ecmapplication:id/loginBT
-    Wait Until Page Contains    加密功能异常    30s    sign in failed!
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV    30s    failed!
-    Click Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV
-    Wait Until Page Contains    请输入开通加密功能的手机号码进行绑定    30s    sign in failed!
-    Input Text    id=com.cetcs.ecmapplication:id/phonenumberET    ${TELE_NUMBER}
-    click element    id=com.cetcs.ecmapplication:id/mSingleButton
-    Wait Until Page Contains    ${TELE_NUMBER}    30s    failed!
-    Wait Until Page Contains    30秒后重发    30s    failed!
-    Click Element    id=com.cetcs.ecmapplication:id/mSingleButton
-    Page Should Contain Text    与在线密管建立连接...
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/bundleSuccessTV    30s    failed!
-    Page Should Contain Text    手机号码绑定成功    DEBUG
-    Page Should Contain Text    手机号码与密码卡已绑定    DEBUG
-    Page Should Contain Text    可正常使用加密通讯    DEBUG
-    Click Element    id=com.cetcs.ecmapplication:id/finishButton
-    Wait Until Page Contains    加密功能已启用    30s    failed！
-    Page Should Contain Text    ${TELE_NUMBER}    DEBUG
-    Page Should Contain Element    id=com.cetcs.ecmapplication:id/xiugaiLayout    DEBUG
-    Page Should Contain Element    id=com.cetcs.ecmapplication:id/xiaohuiLayout    DEBUG
-    Page Should Contain Element    id=com.cetcs.ecmapplication:id/anquanLayout    DEBUG
-    sleep    30s
-    Close Application
-    [Teardown]    Kill Adb Process    ecm
-
-【N】手机号码绑定：绑定流程（移动数据连接环境下绑定)
-    [Documentation]    "1、移动数据网络连接正常；
-    ...    2、 被测终端（手机）已经准备就绪（已插入TF卡、SIM卡）；
-    ...    3、手机号码已经开通加密功能。
-    ...    " "1. 插入与当前TF卡绑定号码不一致的SIM卡；
-    ...    2. 重启手机，点击访问并登录被测应用；
-    ...    3. 在加密功能异常界面检测到手机卡已更换，点击重新绑定；
-    ...    4. 输入正确的手机号码，点击下一步；
-    ...    5. 检查验证码是否自动填充；
-    ...    6. 点击确定；
-    ...    7. 点击完成或者手机返回键；
-    ...    " "1. 成功插入；
-    ...    2. 手机成功重启；密码卡管家成功登录，进入加密功能异常界面；
-    ...    3. 成功进入绑定手机界面；
-    ...    4. 提示“发送验证码请求中”，进入输入验证码界面；
-    ...    5. 手机收到验证码短信，并且验证码自动填充到验证码区域；
-    ...    6. 提示手机号码与密码卡成功绑定；
-    ...    7. 返回加密功能已启用界面；
-    ...    "
-    [Tags]    手机号绑定(#635)
-    ${localAddress}    Get Local Address
-    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
-    ...    appActivity=.LaunchActivity
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
-    Click Element    id=com.cetcs.ecmapplication:id/rememberLayout
-    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
-    Click Element    id=com.cetcs.ecmapplication:id/loginBT
-    Wait Until Page Contains    加密功能异常    30s    sign in failed!
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV    30s    failed!
-    Click Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV
-    Wait Until Page Contains    请输入开通加密功能的手机号码进行绑定    30s    sign in failed!
-    Input Text    id=com.cetcs.ecmapplication:id/phonenumberET    ${TELE_NUMBER}
-    click element    id=com.cetcs.ecmapplication:id/mSingleButton
-    Wait Until Page Contains    ${TELE_NUMBER}    30s    failed!
-    Wait Until Page Contains    30秒后重发    30s    failed!
-    Click Element    id=com.cetcs.ecmapplication:id/mSingleButton
-    Page Should Contain Text    与在线密管建立连接...
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/bundleSuccessTV    30s    failed!
-    Page Should Contain Text    手机号码绑定成功    DEBUG
-    Page Should Contain Text    手机号码与密码卡已绑定    DEBUG
-    Page Should Contain Text    可正常使用加密通讯    DEBUG
-    Click Element    id=com.cetcs.ecmapplication:id/finishButton
-    Wait Until Page Contains    加密功能已启用    30s    failed！
-    Page Should Contain Text    ${TELE_NUMBER}    DEBUG
-    Page Should Contain Element    id=com.cetcs.ecmapplication:id/xiugaiLayout    DEBUG
-    Page Should Contain Element    id=com.cetcs.ecmapplication:id/xiaohuiLayout    DEBUG
-    Page Should Contain Element    id=com.cetcs.ecmapplication:id/anquanLayout    DEBUG
-    sleep    30s
-    Close Application
-    Kill Adb Process    ecm
-
-【N】手机号码绑定：输入正确的手机号码绑定
-    [Documentation]    "1、被测终端（手机）已经准备就绪；
-    ...    2、TF密码卡、SIM卡已经插入；
-    ...    3、手机号码已经开通加密功能；
-    ...    4、成功进入手机号码绑定界面。" "1. 输入正确的手机号码（已经开通加密功能）：
-    ...    当前插入的SIM卡号；
-    ...    2. 点击下一步；
-    ...    3. 输入服务器发送的验证码，点击确定；
-    ...    " "1. 成功输入并正确显示；
-    ...    2. 成功进入验证码输入界面；
-    ...    输入的手机号码成功收取到服务器发送的验证码；
-    ...    3. 手机号码与密码卡成功绑定。
-    ...    "
-    [Tags]    手机号绑定(#635)
-    ${localAddress}    Get Local Address
-    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
-    ...    appActivity=.LaunchActivity
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
-    Click Element    id=com.cetcs.ecmapplication:id/rememberLayout
-    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
-    Click Element    id=com.cetcs.ecmapplication:id/loginBT
-    Wait Until Page Contains    加密功能异常    30s    sign in failed!
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV    30s    failed!
-    Click Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV
-    Wait Until Page Contains    请输入开通加密功能的手机号码进行绑定    30s    sign in failed!
-    Input Text    id=com.cetcs.ecmapplication:id/phonenumberET    ${TELE_NUMBER}
-    click element    id=com.cetcs.ecmapplication:id/mSingleButton
-    Wait Until Page Contains    ${TELE_NUMBER}    30s    failed!
-    Wait Until Page Contains    30秒后重发    30s    failed!
-    Click Element    id=com.cetcs.ecmapplication:id/mSingleButton
-    Page Should Contain Text    与在线密管建立连接...
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/bundleSuccessTV    30s    failed!
-    Page Should Contain Text    手机号码绑定成功    DEBUG
-    Page Should Contain Text    手机号码与密码卡已绑定    DEBUG
-    Page Should Contain Text    可正常使用加密通讯    DEBUG
-    Click Element    id=com.cetcs.ecmapplication:id/finishButton
-    Wait Until Page Contains    加密功能已启用    30s    failed！
-    Page Should Contain Text    ${TELE_NUMBER}    DEBUG
-    Page Should Contain Element    id=com.cetcs.ecmapplication:id/xiugaiLayout    DEBUG
-    Page Should Contain Element    id=com.cetcs.ecmapplication:id/xiaohuiLayout    DEBUG
-    Page Should Contain Element    id=com.cetcs.ecmapplication:id/anquanLayout    DEBUG
-    sleep    30s
-    Close Application
-    Kill Adb Process    ecm
 
 【N】手机号码绑定：输入错误的手机号码绑定
-    [Documentation]    "1、被测终端（手机）已经准备就绪；
+    [Documentation]    预置条件：
+    ...    "1、被测终端（手机）已经准备就绪；
     ...    2、TF密码卡、SIM卡已经插入；
-    ...    3、成功进入手机号码绑定界面。" "1. 输入不存在的手机号码，点击下一步；
+    ...    3、成功进入手机号码绑定界面。"
+    ...
+    ...    操作步骤：
+    ...    "1. 输入不存在的手机号码，点击下一步；
     ...    2. 输入手机号码不满足位数，点击下一步；
     ...    3. 输入正确的手机号码但未开通加密功能，点击下一步；
     ...    4. 输入已经绑定其他TF卡的手机号码，点击下一步；
-    ...    5. 不输入，点击下一步；
-    ...    " "1. 提示手机号码输入错误，要求重新输入；
+    ...    5. 不输入，点击下一步；"
+    ...
+    ...    预期结果：
+    ...    "1. 提示手机号码输入错误，要求重新输入；
     ...    2. 提示手机号错误
     ...    3. 手机号码能正常接收到验证码的信息，输入验证码后，点击完成按钮，系统进入手机号码绑定失败的界面，提示该手机号码未开通加密功能；
     ...    4. 提示该号码已经绑定其他TF卡，不能再次绑定。（根据需求修改）
-    ...    5. 提示请输入手机号码。
-    ...    "
+    ...    5. 提示请输入手机号码。"
     [Tags]    手机号绑定(#635)
     ${localAddress}    Get Local Address
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
@@ -4519,19 +4376,24 @@ APP登录：开机正常登录
     Kill Adb Process    ecm
 
 【N】手机号码绑定：输入错误的验证码
-    [Documentation]    "1、被测终端（手机）已经准备就绪；
+    [Documentation]    预置条件：
+    ...    "1、被测终端（手机）已经准备就绪；
     ...    2、TF密码卡、SIM卡已经插入；
     ...    3、成功进入手机号码绑定界面；
-    ...    4、当前为绑定手机号界面。" "1. 输入正确的手机号码，点击下一步；
+    ...    4、当前为绑定手机号界面。"
+    ...
+    ...    操作步骤：
+    ...    "1. 输入正确的手机号码，点击下一步；
     ...    2. 删除自动填充的验证码，输入错误的验证码，点击确定；
     ...    3. 输入已验证过的验证码，点击确定；
-    ...    4. 输入其他非数字内容；
-    ...    " "1. 成功进入验证码输入界面，验证码自动填充；
+    ...    4. 输入其他非数字内容；"
+    ...
+    ...    预期结果：
+    ...    "1. 成功进入验证码输入界面，验证码自动填充；
     ...    2. 在页面中央弹出“验证码错误”的提示，并且60秒后重发按钮开始倒计时；60秒结束后，文字为“重发”；
     ...    3 在页面中央弹出“验证码错误”的提示，并且60秒后重发按钮开始倒计时；60秒结束后，文字为“重发”；
     ...    3. 提示验证码错误；
-    ...    4. 不允许输入。
-    ...    "
+    ...    4. 不允许输入。"
     [Tags]    手机号绑定(#635)
     ${localAddress}    Get Local Address
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
@@ -4547,7 +4409,7 @@ APP登录：开机正常登录
     Input Text    id=com.cetcs.ecmapplication:id/phonenumberET    ${TELE_NUMBER}
     click element    id=com.cetcs.ecmapplication:id/mSingleButton
     Wait Until Page Contains    ${TELE_NUMBER}    30s    failed!
-    Input Text    id=com.cetcs.ecmapplication:id/verifyET
+    Input Text    id=com.cetcs.ecmapplication:id/verifyET    12345    #输入错误验证码
     Click Element    id=com.cetcs.ecmapplication:id/mSingleButton
     Page Should Contain Element    id=com.cetcs.ecmapplication:id/verifyET    30s
     Wait Until Page Contains    重发验证码    65s    failed!
@@ -4785,6 +4647,160 @@ APP登录：开机正常登录
     sleep    30s
     Close Application
     Kill Adb Process    ecm
+
+【N】手机号码绑定：输入正确的手机号码绑定
+    [Documentation]    预置条件：
+    ...    "1、被测终端（手机）已经准备就绪；
+    ...    2、TF密码卡、SIM卡已经插入；
+    ...    3、手机号码已经开通加密功能；
+    ...    4、成功进入手机号码绑定界面。"
+    ...
+    ...    操作步骤：
+    ...    "1. 输入正确的手机号码（已经开通加密功能）：当前插入的SIM卡号；
+    ...    2. 点击下一步；
+    ...    3. 输入服务器发送的验证码，点击确定；"
+    ...
+    ...    预期结果：
+    ...    "1. 成功输入并正确显示；
+    ...    2. 成功进入验证码输入界面；输入的手机号码成功收取到服务器发送的验证码；
+    ...    3. 手机号码与密码卡成功绑定。
+    ...    "
+    [Tags]    手机号绑定(#635)
+    [Setup]    Kill Adb Process    ecm
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
+    ...    appActivity=.LaunchActivity
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
+    Click Element    id=com.cetcs.ecmapplication:id/rememberLayout
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能异常    30s    sign in failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV    30s    failed!
+    Click Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV
+    Wait Until Page Contains    请输入开通加密功能的手机号码进行绑定    30s    sign in failed!
+    Input Text    id=com.cetcs.ecmapplication:id/phonenumberET    ${TELE_NUMBER}
+    click element    id=com.cetcs.ecmapplication:id/mSingleButton
+    Wait Until Page Contains    ${TELE_NUMBER}    30s    failed!
+    Wait Until Page Contains    30秒后重发    30s    failed!
+    Click Element    id=com.cetcs.ecmapplication:id/mSingleButton
+    Wait Until Page Contains    正在绑定SIM卡...    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/bundleSuccessTV    30s    failed!
+    Wait Until Page Contains    手机号码绑定成功    30s    check failed!
+    Wait Until Page Contains    手机号码与密码卡已绑定    30s    check failed!
+    Wait Until Page Contains    可正常使用加密通讯    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishButton    30s    check failed!
+    Click Element    id=com.cetcs.ecmapplication:id/finishButton
+    Wait Until Page Contains    加密功能已启用    30s    failed！
+    Page Should Contain Text    ${TELE_NUMBER}    DEBUG
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/xiugaiLayout    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/xiaohuiLayout    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanLayout    30s    check failed!
+    sleep    30s
+    Close Application
+    [Teardown]    Kill Adb Process    ecm
+
+【N】手机号码绑定：绑定流程（移动数据连接环境下绑定)
+    [Documentation]    "1、移动数据网络连接正常；
+    ...    2、 被测终端（手机）已经准备就绪（已插入TF卡、SIM卡）；
+    ...    3、手机号码已经开通加密功能。
+    ...    " "1. 插入与当前TF卡绑定号码不一致的SIM卡；
+    ...    2. 重启手机，点击访问并登录被测应用；
+    ...    3. 在加密功能异常界面检测到手机卡已更换，点击重新绑定；
+    ...    4. 输入正确的手机号码，点击下一步；
+    ...    5. 检查验证码是否自动填充；
+    ...    6. 点击确定；
+    ...    7. 点击完成或者手机返回键；
+    ...    " "1. 成功插入；
+    ...    2. 手机成功重启；密码卡管家成功登录，进入加密功能异常界面；
+    ...    3. 成功进入绑定手机界面；
+    ...    4. 提示“发送验证码请求中”，进入输入验证码界面；
+    ...    5. 手机收到验证码短信，并且验证码自动填充到验证码区域；
+    ...    6. 提示手机号码与密码卡成功绑定；
+    ...    7. 返回加密功能已启用界面；
+    ...    "
+    [Tags]    手机号绑定(#635)
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
+    ...    appActivity=.LaunchActivity
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
+    Click Element    id=com.cetcs.ecmapplication:id/rememberLayout
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能异常    30s    sign in failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV    30s    failed!
+    Click Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV
+    Wait Until Page Contains    请输入开通加密功能的手机号码进行绑定    30s    sign in failed!
+    Input Text    id=com.cetcs.ecmapplication:id/phonenumberET    ${TELE_NUMBER}
+    click element    id=com.cetcs.ecmapplication:id/mSingleButton
+    Wait Until Page Contains    ${TELE_NUMBER}    30s    failed!
+    Wait Until Page Contains    30秒后重发    30s    failed!
+    Click Element    id=com.cetcs.ecmapplication:id/mSingleButton
+    Page Should Contain Text    与在线密管建立连接...
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/bundleSuccessTV    30s    failed!
+    Page Should Contain Text    手机号码绑定成功    DEBUG
+    Page Should Contain Text    手机号码与密码卡已绑定    DEBUG
+    Page Should Contain Text    可正常使用加密通讯    DEBUG
+    Click Element    id=com.cetcs.ecmapplication:id/finishButton
+    Wait Until Page Contains    加密功能已启用    30s    failed！
+    Page Should Contain Text    ${TELE_NUMBER}    DEBUG
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/xiugaiLayout    DEBUG
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/xiaohuiLayout    DEBUG
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/anquanLayout    DEBUG
+    sleep    30s
+    Close Application
+    Kill Adb Process    ecm
+
+【N】手机号绑定：绑定流程(wifi环境下绑定）
+    [Documentation]    "1、 WIFI网络连接正常；
+    ...    2、 被测终端（手机）已经准备就绪（已插入TF卡、SIM卡）；
+    ...    3、手机号码已经开通加密功能。
+    ...    " "1. 插入与当前TF卡绑定号码不一致的SIM卡；
+    ...    2. 重启手机，点击访问并登录被测应用；
+    ...    3. 在加密功能异常界面检测到手机卡已更换，点击重新绑定；
+    ...    4. 输入正确的手机号码，点击下一步；
+    ...    5. 检查验证码是否自动填充；
+    ...    6. 点击确定；
+    ...    7. 点击完成或者手机返回键；
+    ...    " "1. 成功插入；
+    ...    2. 手机成功重启；密码卡管家成功登录，进入加密功能异常界面；
+    ...    3. 成功进入绑定手机界面；
+    ...    4. 提示“发送验证码请求中”，进入输入验证码界面；
+    ...    5. 手机收到验证码短信，并且验证码自动填充到验证码区域；
+    ...    6. 提示手机号码与密码卡成功绑定；
+    ...    7. 返回加密功能已启用界面；
+    ...    "
+    [Tags]    手机号绑定(#635)
+    [Setup]    Kill Adb Process    ecm
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
+    ...    appActivity=.LaunchActivity
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
+    Click Element    id=com.cetcs.ecmapplication:id/rememberLayout
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能异常    30s    sign in failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV    30s    failed!
+    Click Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV
+    Wait Until Page Contains    请输入开通加密功能的手机号码进行绑定    30s    sign in failed!
+    Input Text    id=com.cetcs.ecmapplication:id/phonenumberET    ${TELE_NUMBER}
+    click element    id=com.cetcs.ecmapplication:id/mSingleButton
+    Wait Until Page Contains    ${TELE_NUMBER}    30s    failed!
+    Wait Until Page Contains    30秒后重发    30s    failed!
+    Click Element    id=com.cetcs.ecmapplication:id/mSingleButton
+    Page Should Contain Text    与在线密管建立连接...
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/bundleSuccessTV    30s    failed!
+    Page Should Contain Text    手机号码绑定成功    DEBUG
+    Page Should Contain Text    手机号码与密码卡已绑定    DEBUG
+    Page Should Contain Text    可正常使用加密通讯    DEBUG
+    Click Element    id=com.cetcs.ecmapplication:id/finishButton
+    Wait Until Page Contains    加密功能已启用    30s    failed！
+    Page Should Contain Text    ${TELE_NUMBER}    DEBUG
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/xiugaiLayout    DEBUG
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/xiaohuiLayout    DEBUG
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/anquanLayout    DEBUG
+    sleep    30s
+    Close Application
+    [Teardown]    Kill Adb Process    ecm
 
 【N】安全性及可靠性：检测APP运行时占用内存和泄露
     [Documentation]    预置条件：

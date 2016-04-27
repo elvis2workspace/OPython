@@ -19,5 +19,6 @@ ${Bemail}         yan.bb@30raycom.com
 ${ECMApp}         D:\/apps\/EncryptCardManager.apk
 ${OldVpwd}        123456
 ${NewVpwd}        volte2016
+${OTHERECM_TELE}    15881172614
 
 *** Keywords ***
