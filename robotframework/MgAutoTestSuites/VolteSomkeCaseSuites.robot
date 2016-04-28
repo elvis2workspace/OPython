@@ -1183,32 +1183,38 @@ Resource          test_mg_ecmapp_resource.robot
     Click Element    id=com.cetcs.ecmapplication:id/simpleTV
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/changeSuccess    30s    check failed!
     Page Should Contain Element    id=com.cetcs.ecmapplication:id/remberYourNewPin    DEBUG
-    Page Should Contain Element    id=com.cetcs.ecmapplication:id/relogoin    DEBUG
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/relogoin    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/relogoin
     Wait Until Page Contains    加密功能已启用    15s    check failed!
     Page Should Contain Text    ${TELE_NUMBER}    #修改密码成功
+    sleep    10s
+    Close Application
     ${pram}    Evaluate    os.system('adb shell reboot')    os
     log    ${pram}
     sleep    30s
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
     ...    appActivity=.LaunchActivity
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/rememberLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/rememberLayout
     Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
     Click Element    id=com.cetcs.ecmapplication:id/loginBT
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/errorTV    30s    sign in failed!
     Wait Until Page Contains    再输错5次密码卡将被锁定    30s    sign in failed!
-    Press Keycode    3
+    Press Keycode    3    #返回到home桌面
     #准备进入到设置停止进程
-    close application
+    Close Application
+    sleep    20s
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.android.settings
     ...    appActivity=.HWSettings
     Cswipe    250    1500    250    250
+    sleep     10s
     Wait Until Page Contains    应用管理    30    check failed!
     Click Element    name=应用管理
     Cswipe    250    1500    250    250
+    Sleep    15s
     Wait Until Page Contains    密码卡管家    30    check failed!
-    sleep    5s
+    sleep    10s
     Click Element    name=密码卡管家
     Wait Until Page Contains    应用信息    30    check failed!
     Click Element    id=com.android.settings:id/right_button
@@ -1224,7 +1230,8 @@ Resource          test_mg_ecmapp_resource.robot
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/errorTV    30s    sign in failed!
     Wait Until Page Contains    再输错4次密码卡将被锁定    30s    sign in failed!
     Kill Adb Process    ecm
-    Press Keycode    3
+    Press Keycode    3    #返回home桌面
+    Sleep    10s
     Wait Until Page Contains    密码卡管家    30    check failed!
     Click Element    name=密码卡管家
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !
@@ -1237,6 +1244,7 @@ Resource          test_mg_ecmapp_resource.robot
     Click Element    id=com.cetcs.ecmapplication:id/loginBT
     Wait Until Page Contains    加密功能已启用    15s    check failed!
     Page Should Contain Text    ${TELE_NUMBER}    #修改密码成功
+    #恢复初始密码
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/xiugaiLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/xiugaiLayout
     Wait Until Page Contains    请输入旧口令    30s    check failed!
@@ -1255,7 +1263,7 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Text    ${TELE_NUMBER}
     sleep    10s
     close application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Close Application
 
 【N】修改密码卡口令：忘记口令（待完善）
     [Documentation]    预置条件：
@@ -1297,7 +1305,7 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Text    输入PIN码    DEBUG
     Sleep    10s
     Close Application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Close Application
 
 【N】安全检查：开启免口令登录：终端屏幕解锁密码功能未开启
     [Documentation]    预置条件：
@@ -1416,7 +1424,7 @@ Resource          test_mg_ecmapp_resource.robot
     Click Element    id=android:id/button1
     Wait Until Page Contains    无密码    30s    check failed!
     Close Application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Close Application
 
 【N】安全检查：开启免口令设置：终端屏幕解锁密码功能已开启
     [Documentation]    预置条件：
@@ -1555,7 +1563,7 @@ Resource          test_mg_ecmapp_resource.robot
     Click Element    id=com.cetcs.ecmapplication:id/distory_confirm2
     Wait Until Page Contains    解锁方式选择    30s    check failed!
     Close Application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Close Application
 
 【N】安全检查：关闭免口令设置
     [Documentation]    预置条件：
@@ -1664,7 +1672,7 @@ Resource          test_mg_ecmapp_resource.robot
     Click Element    id=android:id/button1
     Wait Until Page Contains    无密码    30s    check failed!
     Close Application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Close Application
 
 【N】安全检查：取消免口令设置
     [Documentation]    预置条件：
@@ -1737,7 +1745,7 @@ Resource          test_mg_ecmapp_resource.robot
     ...    ELSE    log    已经关闭
     Click Element    name=取消
     Wait Until Page Contains    已开启    30s    check failed!
-    sleep     10s
+    sleep    10s
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/miankoulingshezhiLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/miankoulingshezhiLayout
     Wait Until Page Contains    长期存储口令    30s    check failed!
@@ -1780,7 +1788,7 @@ Resource          test_mg_ecmapp_resource.robot
     Click Element    id=android:id/button1
     Wait Until Page Contains    无密码    30s    check failed!
     Close Application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Close Application
 
 【N】安全检查：开启口令重置提醒周期
     [Documentation]    预置条件：
@@ -1843,21 +1851,21 @@ Resource          test_mg_ecmapp_resource.robot
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
-    ${restr}=    Run Keyword And Return Status    Page Should Contain Text    未设置提醒周期    DEBUG    #需预置未开启设置提醒周期
+    ${restr}=    Run Keyword And Return Status    Page Should Contain Text    未设置提醒时间    DEBUG    #需预置未开启设置提醒周期
     Run Keyword If    '${restr}'=='false'    Click Element    id=com.cetcs.ecmapplication:id/radiobutton_close
     ...    ELSE    Click Element    id=com.cetcs.ecmapplication:id/radiobutton_open    #已开启    #未设置 待开启
     Click Element    id=com.cetcs.ecmapplication:id/radiobutton_open
-    ${pram1}    Evaluate    os.system('adb shell input tap 156 1040')    os    #一个月元素标签所在位置
+    ${pram1}    Evaluate    os.system('adb shell input tap 180 1060')    os    #一个月元素标签所在位置
     log    ${pram1}
+    Wait Until Page Contains    1个月    30s    check failed!
     Click Element    name=确定
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqiTV    30s    check failed!
-    Page Should Contain Text    1个月    DEBUG
     Page Should Contain Text    1个月 \ (距下次提醒： 30天)    DEBUG
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout    30s    check failed!
-    Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
+    Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout    #设置按钮
     Wait Until Page Contains    1个月    30s    check failed!
-    Click Element    id=com.cetcs.ecmapplication:id/textview_zhankai
-    ${pram2}    Evaluate    os.system('adb shell input tap 156 1080')    os    #2个月元素标签所在位置
+    Click Element    id=com.cetcs.ecmapplication:id/kaiqi_controll
+    ${pram2}    Evaluate    os.system('adb shell input tap 180 1160')    os    #2个月元素标签所在位置
     log    ${pram2}
     Wait Until Page Contains    2个月    30s    check failed!
     Click Element    name=确定
@@ -1866,8 +1874,8 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Text    2个月 \ (距下次提醒： 61天)    DEBUG
     Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
     Wait Until Page Contains    2个月    30s    check failed!
-    Click Element    id=com.cetcs.ecmapplication:id/textview_zhankai
-    ${pram3}    Evaluate    os.system('adb shell input tap 156 1120')    os    #3个月元素标签所在位置
+    Click Element    id=com.cetcs.ecmapplication:id/kaiqi_controll
+    ${pram3}    Evaluate    os.system('adb shell input tap 180 1290')    os    #3个月元素标签所在位置
     log    ${pram3}
     Wait Until Page Contains    3个月    30s    check failed!
     Click Element    name=确定
@@ -1878,13 +1886,14 @@ Resource          test_mg_ecmapp_resource.robot
     Wait Until Page Contains    加密功能已启用    30s    check failed!
     Page Should Contain Text    ${TELE_NUMBER}
     #teardown-恢复环境
+    Sleep    20s
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
     Wait Until Page Contains    口令重置提醒    30s    check failed!
-    Click Element    id=com.cetcs.ecmapplication:id/cycle_tv_close
+    Click Element    id=com.cetcs.ecmapplication:id/guanbi_cycle
     Wait Until Page Contains    未设置提醒时间    30s    check failed!
     Click Element    name=确定
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!
@@ -1895,6 +1904,7 @@ Resource          test_mg_ecmapp_resource.robot
     Sleep    15s
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.android.settings
     ...    appActivity=.HWSettings
+    Sleep    15s
     Cswipe    250    650    250    250
     Wait Until Page Contains    锁屏和密码    30s    check failed!
     Click Element    name=锁屏和密码
@@ -1910,67 +1920,117 @@ Resource          test_mg_ecmapp_resource.robot
     Click Element    id=android:id/button1
     Wait Until Page Contains    无密码    30s    check failed!
     Close Application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Close Application
 
 【N】安全检查：关闭口令重置提醒周期
-    [Documentation]    "1. 密码卡管家已成功登录，进入加密功能已启用界面；
+    [Documentation]    预置条件：
+    ...    "1. 密码卡管家已成功登录，进入加密功能已启用界面；
     ...    2. 终端屏幕解锁密码功能已开启；
-    ...    3. ECM应用中，已设置口令重置提醒周期；" "1. 点击安全参数；
+    ...    3. ECM应用中，已设置口令重置提醒周期；"
+    ...
+    ...    操作步骤：
+    ...    "1. 点击安全参数；
     ...    2. 点击口令重置提醒周期-》设置按钮；
     ...    3. 选择关闭选项，点击取消；
     ...    4. 重新点击设置按钮，再次进入口令重置提醒界面，选择关闭选项，点击确定；
-    ...    5. 修改手机终端本地时间，遍历所有选择的日期，再次登录密码卡管家；
-    ...    " "1. 成功进入安全设置界面；
+    ...    5. 修改手机终端本地时间，遍历所有选择的日期，再次登录密码卡管家；"
+    ...
+    ...    预期结果：
+    ...    "1. 成功进入安全设置界面；
     ...    2. 进入口令重置提醒设置界面；
     ...    3. 退出口令重置提醒界面；
     ...    4. 设置成功，口令重置提醒被关闭；
     ...    5. 密码卡管家登录后不再提醒用户口令到期；"
     [Tags]    安全检查(#641)
+    [Setup]    Kill Adb Process    ecm
+    #预置条件
     ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.android.settings
+    ...    appActivity=.HWSettings
+    Sleep    10s
+    Cswipe    250    650    250    250
+    sleep     10s
+    Wait Until Page Contains    锁屏和密码    30s    check failed!
+    Click Element    name=锁屏和密码
+    Wait Until Page Contains    锁屏密码    30s    check failed!
+    Click Element    name=锁屏密码
+    Wait Until Page Contains    数字密码    30s    check failed!
+    Click Element    name=数字密码
+    Wait Until Page Contains Element    id=com.android.settings:id/password_entry    30s    check failed!
+    Page Should Contain Text    输入您的数字密码
+    Input Password    id=com.android.settings:id/password_entry    1234
+    Wait Until Page Contains Element    id=com.android.settings:id/next_button    30s    check failed!
+    Click Element    id=com.android.settings:id/next_button
+    Wait Until Page Contains    确认您的密码    30s    check failed!
+    Input Password    id=com.android.settings:id/password_entry    1234
+    Wait Until Page Contains Element    id=com.android.settings:id/next_button    30s    check failed!
+    Click Element    id=com.android.settings:id/next_button
+    Wait Until Page Contains    录入指纹    30s    check failed!
+    Click Element    id=android:id/button2
+    Close Application
+    sleep     10s
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
     ...    appActivity=.LaunchActivity
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
     Click Element    id=com.cetcs.ecmapplication:id/rememberLayout
     Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
     Click Element    id=com.cetcs.ecmapplication:id/loginBT
-    Wait Until Page Contains    加密功能已启用    30s    30s
+    Wait Until Page Contains    加密功能已启用    30s    check fail!
     Page Should Contain Text    ${TELE_NUMBER}
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
     Wait Until Page Contains    口令重置提醒周期    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout    30s    check failed!
+    Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
+    Click Element    id=com.cetcs.ecmapplication:id/kaiqi_controll
+    ${pram1}    Evaluate    os.system('adb shell input tap 180 1060')    os    #一个月元素标签所在位置
+    log    ${pram1}
+    Click Element    name=确定
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
     Wait Until Page Contains    口令重置提醒    30s    sign in failed!
     Wait Until Page Contains    到期后提醒用户修改密码卡口令    30s    sign in failed!
-    Page Should Contain Text    个月    DEBUG
+    Page Should Contain Text    1个月    DEBUG
     Click Element    id=com.cetcs.ecmapplication:id/radiobutton_close
+    Wait Until Page Contains    未设置提醒时间    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/cancal3
-    Wait Until Page Contains    个月    30s    check failed!
+    Wait Until Page Contains    1个月 \ \(距下次提醒： 30天)    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
+    Wait Until Page Contains    口令重置提醒    30s    sign in failed!
+    Wait Until Page Contains    到期后提醒用户修改密码卡口令    30s    sign in failed!
     Click Element    id=com.cetcs.ecmapplication:id/radiobutton_close
+    Wait Until Page Contains    未设置提醒时间    30s    check failed!
     Click Element    name=确定
-    Page Should Contain Text    正在设置请稍后...
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhishijianTV    30s    sign in failed!
     Page Should Contain Text    未设置提醒时间
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check faild!
     Click Element    id=com.cetcs.ecmapplication:id/finishTV
+    Wait Until Page Contains    加密功能已启用    30s    check fail!
     Page Should Contain Text    ${TELE_NUMBER}
     sleep    10s
     Close Application
+    [Teardown]    Run Keyword If Test Failed    Close Application
 
 【N】安全检查：安全设置时点击手机home键
-    [Documentation]    "1. 密码卡管家已成功登录，进入加密功能已启用界面；
+    [Documentation]    预置条件：
+    ...    "1. 密码卡管家已成功登录，进入加密功能已启用界面；
     ...    2.当前已进入安全设置界面；"
+    ...
+    ...    操作步骤：
     ...    "1. 在安全设置界面点击home键返回手机桌面，再次点击APP图标启动应用；
     ...    2. 在点击免口令登录-》设置后点击手机home键返回手机桌面，再次点击APP图标启动应用；
     ...    3. 在点击口令重置提醒周期-》设置后点击手机home键返回手机桌面，再次点击APP图标启动应用；
-    ...    4. 在口令重置提醒周期设置中提示“正在设置请稍后”时点击手机home键返回手机桌面，再次点击APP图标启动应用；
-    ...    "
+    ...    4. 在口令重置提醒周期设置中提示“正在设置请稍后”时点击手机home键返回手机桌面，再次点击APP图标启动应用；"
+    ...
+    ...    预期结果：
     ...    "1. 能成功进入安全设置界面；
     ...    2. 能成功进入长期存储口令设置界面；
     ...    3. 能成功进入口令重置提醒周期设置界面；
-    ...    4. 能成功进入安全设置界面；
-    ...    "
+    ...    4. 能成功进入安全设置界面；"
     [Tags]    安全检查(#641)
+    [Setup]    Kill Adb Process    ecm
+    #预置条件
     ${localAddress}    Get Local Address
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
     ...    appActivity=.LaunchActivity
@@ -1980,48 +2040,82 @@ Resource          test_mg_ecmapp_resource.robot
     Click Element    id=com.cetcs.ecmapplication:id/loginBT
     Wait Until Page Contains    加密功能已启用    30s    sign in failed!
     Page Should Contain Text    ${TELE_NUMBER}
-    Press Keycode    3
-    Click Element    密码卡管家
+    #进入安全参数设置界面
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
-    Page Should Contain Text    免口令登录    DEBUG
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanshezhiTV    30s    check failed!
+    Press Keycode    3    #安全设置界面点击home键
+    Sleep    10s
+    Wait Until Page Contains    密码卡管家    30s    check failed!
+    Click Element    name=密码卡管家
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanshezhiTV    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!    #返回安全参数设置界面
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/miankoulingshezhiLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/miankoulingshezhiLayout
-    Press Keycode    3
-    Wait Until Page Contains    免口令登录
-    Page Should Not Contain Text    开启后无需输入口令即可登录    DEBUG
+    Wait Until Page Contains    长期存储口令    30s    check failed!    #进入免口令登录界面
+    Page Should Contain Text    开启后无需输入口令即可登录    DEBUG
+    Press Keycode    3    #HOME键
+    Sleep    10s
+    Wait Until Page Contains    密码卡管家    30s    check failed!
+    Click Element    name=密码卡管家
+    Wait Until Page Contains    长期存储口令    30s    check failed!    #返回长期存储口令设置界面
+    Click Element    name=取消
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout    30s    check failed!
-    Page Should Contain Text    口令重置提醒周期    DEBUG
-    Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
-    Page Should Contain Text    到期后提醒用户修改密码卡口令    DEBUG
-    Press Keycode    3
+    Page Should Contain Text    未设置提醒时间    DEBUG
     Wait Until Page Contains    口令重置提醒周期    30s    check failed!
-    Page Should Not Contain Text    到期后提醒用户修改密码卡口令    DEBUG
     Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
-    Wait Until Page Contains    到期后提醒用户修改密码卡口令    30s    check failed!
+    Wait Until Page Contains    口令重置提醒    30s    check failed!
+    Page Should Not Contain Text    到期后提醒用户修改密码卡口令
+    Press Keycode    3
+    Sleep    10s
+    Wait Until Page Contains    密码卡管家    30s    check failed!
+    Click Element    name=密码卡管家
+    Wait Until Page Contains    口令重置提醒    30s    check failed!    #c成功进入口令重置提醒界面
+    Page Should Contain Text    到期后提醒用户修改密码卡口令    DEBUG
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/radiobutton_open    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/radiobutton_open
-    ${pram1}    Evaluate    os.system('adb shell input tap 156 1040')    os    #一个月元素标签所在位置
+    ${pram1}    Evaluate    os.system('adb shell input tap 180 1060')    os    #一个月元素标签所在位置
     log    ${pram1}
     Wait Until Page Contains    1个月    30s    check failed!
     Click Element    name=确定
-    Page Should Contain Text    正在设置请稍后...
+    Wait Until Page Contains    正在设置请稍后...    30s    check failed!
     Press Keycode    3
-    Wait Until Page Contains    1个月 \ (距下次提醒： 29天)    30s    check failed!
+    Sleep    10s
+    Wait Until Page Contains    密码卡管家    30s    check failed!
+    Click Element    name=密码卡管家
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!
+    Wait Until Page Contains    安全设置    30s    check failed!
+    Wait Until Page Contains    1个月 \ (距下次提醒： 30天)    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout    30s    check failed!
+    Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/radiobutton_close    30s    check failed!
+    Click Element    id=com.cetcs.ecmapplication:id/radiobutton_close
+    Click Element    name=确定
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanshezhiTV    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/finishTV
     Wait Until Page Contains    加密功能已启用    30s    sign in failed!
     Page Should Contain Text    ${TELE_NUMBER}
     sleep    10s
     Close Application
+    [Teardown]    Run Keyword If Test Failed    Close Application
 
 【N】安全检查：安全设置时点击手机返回键
-    [Documentation]    "1. 密码卡管家已成功登录，进入加密功能已启用界面；
-    ...    2.当前已进入安全设置界面；" "1. 点击免口令登录-》设置后点击手机返回键；
+    [Documentation]    预置条件：
+    ...    "1. 密码卡管家已成功登录，进入加密功能已启用界面；
+    ...    2.当前已进入安全设置界面；"
+    ...
+    ...    操作步骤：
+    ...    "1. 点击免口令登录-》设置后点击手机返回键；
     ...    2. 在点击口令重置提醒周期-》设置后点击手机返回键；
-    ...    3. 在口令重置提醒周期设置中提示“正在设置请稍后”时点击手机返回键；
-    ...    " "1. 成功返回安全设置界面；
+    ...    3. 在口令重置提醒周期设置中提示“正在设置请稍后”时点击手机返回键；"
+    ...
+    ...    预期结果：
+    ...    "1. 成功返回安全设置界面；
     ...    2. 成功返回安全设置界面；
-    ...    3. 口令重置提醒周期设置成功，并且成功返回安全设置界面。
-    ...    "
+    ...    3. 口令重置提醒周期设置成功，并且成功返回安全设置界面。"
     [Tags]    安全检查(#641)
     [Setup]    Kill Adb Process    ecm
     ${localAddress}    Get Local Address
@@ -2035,35 +2129,43 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Text    ${TELE_NUMBER}
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
-    Page Should Contain Text    免口令登录    DEBUG
+    Wait Until Page Contains Element    com.cetcs.ecmapplication:id/anquanshezhiTV    30s    check failed!    #进入安全设置界面
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/miankoulingshezhiLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/miankoulingshezhiLayout
     Go Back
     Wait Until Page Contains    免口令登录
+    Wait Until Page Contains Element    com.cetcs.ecmapplication:id/anquanshezhiTV    30s    check failed!    #返回安全设置界面
     Page Should Not Contain Text    开启后无需输入口令即可登录    DEBUG
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout    30s    check failed!
     Page Should Contain Text    口令重置提醒周期    DEBUG
     Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
-    Page Should Contain Text    到期后提醒用户修改密码卡口令    DEBUG
+    Wait Until Page Contains     到期后提醒用户修改密码卡口令    30s    check failed!
     Go Back
-    Wait Until Page Contains    口令重置提醒周期    30s    check failed!
-    Page Should Not Contain Text    到期后提醒用户修改密码卡口令    DEBUG
+    Wait Until Page Contains    口令重置提醒周期    30s    check failed!    #返回安全设置界面
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
     Wait Until Page Contains    到期后提醒用户修改密码卡口令    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/radiobutton_open
-    ${pram1}    Evaluate    os.system('adb shell input tap 156 1040')    os    #一个月元素标签所在位置
+    ${pram1}    Evaluate    os.system('adb shell input tap 180 1060')    os    #一个月元素标签所在位置
     log    ${pram1}
     Wait Until Page Contains    1个月    30s    check failed!
     Click Element    name=确定
-    Page Should Contain Text    正在设置请稍后...
+    Wait Until Page Contains    正在设置请稍后...    30s    check failed!
     Go Back
-    Wait Until Page Contains    1个月 \ (距下次提醒： 29天)    30s    check failed!
+    Wait Until Page Contains    1个月 \ (距下次提醒： 30天)    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout    30s    check failed!
+    Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
+    Wait Until Page Contains    到期后提醒用户修改密码卡口令    30s    check failed!
+    Click Element    id=com.cetcs.ecmapplication:id/radiobutton_close
+    Click Element    name=确定
+    Wait Until Page Contains    未设置提醒时间    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/finishTV
     Wait Until Page Contains    加密功能已启用    30s    sign in failed!
     Page Should Contain Text    ${TELE_NUMBER}
     sleep    10s
     Close Application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Close Application
 
 【N】安全检查：安全加密算法检查
     [Documentation]    预置条件：
@@ -2114,7 +2216,7 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Text    ${TELE_NUMBER}
     sleep    10s
     Close Application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Close Application
 
 【N】安全检查：安全有效性状态检查
     [Documentation]    预置条件：
@@ -2161,7 +2263,7 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Text    ${TELE_NUMBER}
     sleep    10s
     Close Application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Close Application
 
 【N】手动销毁功能：【取消销毁】取消
     [Documentation]    预置条件：
@@ -2221,7 +2323,7 @@ Resource          test_mg_ecmapp_resource.robot
     #Page Should Contain Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV
     #sleep    10s
     #close application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Close Application
 
 【N】手动销毁功能：【取消销毁】系统返回
     [Documentation]    预置条件：
@@ -2282,7 +2384,7 @@ Resource          test_mg_ecmapp_resource.robot
     #Page Should Contain Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV
     #sleep    10s
     #close application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Close Application
 
 【N】手动销毁功能：【口令场景】错误的口令（口令长度实现已变更）
     [Documentation]    预置条件：
@@ -2333,24 +2435,35 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Not Contain Text    是否确认销毁密码卡?    DEBUG
     Input Password    id=com.cetcs.ecmapplication:id/inputpinTV    1    #输入1位密码
     Click Element    id=com.cetcs.ecmapplication:id/comfirm
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/errorInfo    30s    check failed!
-    Page Should Contain Text    口令长度错误,再输错5次密码卡将被锁定    DEBUG
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/pwdClearIV    30s    check failed!
+    Click Element    id=com.cetcs.ecmapplication:id/pwdClearIV
+    Wait Until Page Does Not Contain Element    id=com.cetcs.ecmapplication:id/errorInfo    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/pwdClearIV    30s    check failed!
+    Click Element    id=com.cetcs.ecmapplication:id/pwdClearIV
+    Wait Until Page Contains    销毁密码卡    30s    check failed!
     Input Password    id=com.cetcs.ecmapplication:id/inputpinTV    12345    #输入5位密码
     Click Element    id=com.cetcs.ecmapplication:id/comfirm
+    Wait Until Page Does Not Contain Element    id=com.cetcs.ecmapplication:id/errorInfo    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/pwdClearIV    30s    check failed!
+    Click Element    id=com.cetcs.ecmapplication:id/pwdClearIV
+    Wait Until Page Contains    销毁密码卡    30s    check failed!
+    Input Password    id=com.cetcs.ecmapplication:id/inputpinTV    123457    #输入6位错误口令
+    Click Element    id=com.cetcs.ecmapplication:id/comfirm
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/errorInfo    30s    check failed!
-    Page Should Contain Text    口令长度错误,再输错4次密码卡将被锁定    DEBUG
-    Input Password    id=com.cetcs.ecmapplication:id/inputpinTV    12345    #输入5位密码
+    Page Should Contain Text    再输错5次密码卡将被锁定    DEBUG
+    Input Password    id=com.cetcs.ecmapplication:id/inputpinTV    123457887654321    #输入16位错误口令
+    Click Element    id=com.cetcs.ecmapplication:id/comfirm
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/errorInfo    30s    check failed!
+    Page Should Contain Text    再输错4次密码卡将被锁定    DEBUG
+    Input Password    id=com.cetcs.ecmapplication:id/inputpinTV    1234578987654321    #输入17位错误口令
     Click Element    id=com.cetcs.ecmapplication:id/comfirm
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/errorInfo    30s    check failed!
     Page Should Contain Text    再输错3次密码卡将被锁定    DEBUG
-    Input Password    id=com.cetcs.ecmapplication:id/inputpinTV    123457    #输入6位密码
-    Click Element    id=com.cetcs.ecmapplication:id/comfirm
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/errorInfo    30s    check failed!
-    Page Should Contain Text    再输错2次密码卡将被锁定    DEBUG
-    Input Password    id=com.cetcs.ecmapplication:id/inputpinTV    123457887654321    #输入16位密码
-    Click Element    id=com.cetcs.ecmapplication:id/comfirm
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/errorInfo    30s    check failed!
-    Page Should Contain Text    再输错1次密码卡将被锁定    DEBUG
+    Input Password    id=com.cetcs.ecmapplication:id/inputpinTV    1234578987654321    #输入17位错误口令
+    Click Element    id=com.cetcs.ecmapplication:id/pwdClearIV
+    Page Should Contain Text    再输错3次密码卡将被锁定    DEBUG
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/mComplexEditText    DEBUG
+    Go Back
     Go Back
     Wait Until Page Contains    加密功能已启用    30s    check failed!
     Page Should Contain Text    ${TELE_NUMBER}
@@ -2361,54 +2474,4 @@ Resource          test_mg_ecmapp_resource.robot
     #Page Should Contain Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV
     #sleep    10s
     #close application
-    [Teardown]    Kill Adb Process    ecm
-
-【N】安全性及可靠性：检测APP运行时占用内存和泄露
-    [Documentation]    预置条件：
-    ...    "1、终端（手机）与电脑成功连接；
-    ...    2、被测应用已成功安装到终端（手机）。"
-    ...
-    ...    操作步骤：
-    ...    "1. 访问APP，保持APP运行状态（测试周期：半个小时、一个小时、半天、一天）；
-    ...    2. 在PC端进入cmd命令行界面；
-    ...    3. 输入adb shell dumpsys meminfo <package名称 / \ PID>或者使用DDMS，对APP界面和功能进行遍历测试、快速操作，检查是否存在内存泄露；"
-    ...
-    ...    预期结果：
-    ...    "1. APP保持运行；
-    ...    2. 成功进入；
-    ...    3. 1、查看Native/Dalvik 的 Heap 信息，检测该值是否一直增长，如果一直增长则代表程序可能出现了内存泄漏；
-    ...    2、查看Total 的 PSS 信息，检查占用内存大小是否超过研发标准；
-    ...    3、APP运行一段时间，检查缓存占用大小是否超过研发标准。"
-    [Tags]    安全性及可靠性(#654)
-    [Setup]    Kill Adb Process    ecm
-    ${localAddress}    Get Local Address
-    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
-    ...    appActivity=.LaunchActivity
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
-    Click Element    id=com.cetcs.ecmapplication:id/rememberLayout
-    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
-    Click Element    id=com.cetcs.ecmapplication:id/loginBT
-    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
-    Page Should Contain Text    ${TELE_NUMBER}
-    [Teardown]    Kill Adb Process    ecm
-
-【N】加密通话：连续发起多次加密电话
-    [Documentation]    预置条件：
-    ...    "1. 在网络连接正常、TF卡状态正常且与密管连接正常的情况下，主叫连续发起多次加密电话（分别测试连续发起5通、10通、15通、20通加密电话），检查接通率和密钥协商情况；
-    ...    "
-    ...    "1. 成功发起且被叫成功接听，密钥协商成功；
-    ...    "
-    [Tags]    加密通话(#678)
-    [Setup]    Kill Adb Process    ecm
-    ${localAddress}    Get Local Address
-    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
-    ...    appActivity=.LaunchActivity
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
-    Click Element    id=com.cetcs.ecmapplication:id/rememberLayout
-    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
-    Click Element    id=com.cetcs.ecmapplication:id/loginBT
-    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
-    Page Should Contain Text    ${TELE_NUMBER}
-    Press Keycode    3
-    Press Keycode    5
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Close Application
