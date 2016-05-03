@@ -1,3 +1,9 @@
 *** Settings ***
 Library           DatabaseLibrary
 Resource          test_mg_ecmapp_resource.robot
+Library           CustomLibrary
+Library           AppiumLibrary
+
+*** Keywords ***
+Teardown
+    Close Application
