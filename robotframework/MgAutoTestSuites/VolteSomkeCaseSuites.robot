@@ -47,7 +47,7 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Text    请输入密码卡口令    DEBUG
     Sleep    10s
     close application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]
 
 【N】用户登录解锁:【入口】应用程序列表
     [Documentation]    预置条件：
@@ -76,7 +76,7 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Element    id=com.cetcs.ecmapplication:id/chaIV    DEBUG    #停止登录
     sleep    20s    #待系统稳定
     Close Application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]
 
 【N】用户登录解锁:【暂不登录】跳过或继续登录
     [Documentation]    预置条件:
@@ -133,7 +133,7 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Not Contain Element    id=com.cetcs.ecmapplication:id/loginHint    DEBUG    #退出登录界面
     sleep    10s
     Close Application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]
 
 【N】用户登录解锁:【口令场景】正确的口令
     [Documentation]    预置条件：
@@ -166,7 +166,7 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Text    销毁密码卡    DEBUG
     Page Should Contain Text    安全参数    DEBUG
     Close Application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]
 
 【N】用户登录解锁:【口令场景】错误的口令(密码长度实现已变更）
     [Documentation]    预置条件：
@@ -245,7 +245,7 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Element    id=com.cetcs.ecmapplication:id/guanyuIV    DEBUG
     sleep    30S
     Close Application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]
 
 【N】用户登录解锁:【自动登录】口令一致
     [Documentation]    预置条件:
@@ -284,7 +284,7 @@ Resource          test_mg_ecmapp_resource.robot
     Click Element    id=com.android.settings:id/next_button
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginHint    30s    check failed!    #回到ecm登录界面
     Click Element    id=com.cetcs.ecmapplication:id/loginBT
-    Wait Until Page Contains    加密功能已启用    60s    sign in failed!
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
     Page Should Contain Text    ${TELE_NUMBER}
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanLayout    30s    check failed!
     Close Application
@@ -329,7 +329,7 @@ Resource          test_mg_ecmapp_resource.robot
     Click Element    id=android:id/button1
     Wait Until Page Contains    无密码    30s    check failed!
     Close Application
-    [Teardown]    Run Keyword If Test Failed    Teardown
+    [Teardown]    Run Keyword If Test Failed    close keyguard
 
 【N】修改密码卡口令：修改口令流程
     [Documentation]    预置条件：
@@ -419,7 +419,7 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Text    ${TELE_NUMBER}    DEBUG
     Sleep    10s
     Close Application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Initial Password
 
 【N】修改密码卡口令：两次输入的新口令不一致
     [Documentation]    预置条件：
@@ -468,7 +468,7 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Text    口令不匹配，请重新输入    DEBUG
     sleep    10s
     Close Application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Initial Password
 
 【N】修改密码卡口令：新口令的输入验证(密码长度实现已变更)
     [Documentation]    预置条件：
@@ -569,7 +569,7 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Text    ${TELE_NUMBER}
     sleep    10s
     Close Application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Initial Password
 
 【N】修改密码卡口令：新口令与旧口令一致（待完善）
     [Documentation]    预置条件：
@@ -619,7 +619,7 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Text    ${TELE_NUMBER}
     sleep    10s
     Close Application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Initial Password
 
 【N】修改密码卡口令：修改口令流程中点击手机返回键
     [Documentation]    预置条件：
@@ -749,7 +749,7 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Text    ${TELE_NUMBER}
     sleep    10s
     close application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Initial Password
 
 【N】修改密码卡口令：修改口令流程中点击手机home键
     [Documentation]    预置条件：
@@ -855,7 +855,7 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Text    ${TELE_NUMBER}
     sleep    10s
     close application
-    [Teardown]    Kill Adb Process    ecm
+    [Teardown]    Run Keyword If Test Failed    Initial Password
 
 【N】修改密码卡口令：修改口令后各种状态下重新登录
     [Documentation]    预置条件：
@@ -1995,7 +1995,7 @@ Resource          test_mg_ecmapp_resource.robot
     Click Element    id=com.cetcs.ecmapplication:id/radiobutton_close
     Wait Until Page Contains    未设置提醒时间    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/cancal3
-    Wait Until Page Contains    1个月     30s    check failed!
+    Wait Until Page Contains    1个月    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
     Wait Until Page Contains    口令重置提醒    30s    sign in failed!
     Wait Until Page Contains    到期后提醒用户修改密码卡口令    30s    sign in failed!
@@ -2438,8 +2438,6 @@ Resource          test_mg_ecmapp_resource.robot
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/pwdClearIV    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/pwdClearIV
     Wait Until Page Does Not Contain Element    id=com.cetcs.ecmapplication:id/errorInfo    30s    check failed!
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/pwdClearIV    30s    check failed!
-    Click Element    id=com.cetcs.ecmapplication:id/pwdClearIV
     Wait Until Page Contains    销毁密码卡    30s    check failed!
     Input Password    id=com.cetcs.ecmapplication:id/inputpinTV    12345    #输入5位密码
     Click Element    id=com.cetcs.ecmapplication:id/comfirm
@@ -2459,7 +2457,7 @@ Resource          test_mg_ecmapp_resource.robot
     Click Element    id=com.cetcs.ecmapplication:id/comfirm
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/errorInfo    30s    check failed!
     Page Should Contain Text    再输错3次密码卡将被锁定    DEBUG
-    Input Password    id=com.cetcs.ecmapplication:id/inputpinTV    1234578987654321    #输入17位错误口令
+    Input Password    id=com.cetcs.ecmapplication:id/inputpinTV    12345volte54321    #输入17位错误口令
     Click Element    id=com.cetcs.ecmapplication:id/pwdClearIV
     Page Should Contain Text    再输错3次密码卡将被锁定    DEBUG
     Page Should Contain Element    id=com.cetcs.ecmapplication:id/mComplexEditText    DEBUG
@@ -2534,7 +2532,9 @@ close keyguard
     ${localAddress}=    Get Local Address
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.android.settings
     ...    appActivity=.HWSettings
-    Cswipe    250    650    250    250
+    sleep     10s
+    Cswipe    250    700    250    200
+    Sleep    5s
     Wait Until Page Contains    锁屏和密码    30s    check failed!
     Click Element    name=锁屏和密码
     Wait Until Page Contains    锁屏密码    30s    check failed!
