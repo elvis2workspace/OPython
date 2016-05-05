@@ -62,10 +62,9 @@ Resource          test_mg_ecmapp_resource.robot
     [Tags]    用户登录解锁(#634)
     [Setup]    Kill Adb Process    ecm
     ${localAddress}    Get Local Address
-    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.huawei.android.launcher
-    ...    appActivity=.Launcher
-    Wait Until Page Contains    密码卡管家    30s    check failed!
-    Click Element    name=密码卡管家
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
+    ...    appActivity=.LaunchActivity
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginHint    30s    check failed!    #登录提示
     Go Back
     Page Should Contain Text    请输入密码卡口令    DEBUG
@@ -74,7 +73,7 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Element    id=com.cetcs.ecmapplication:id/rememberLayout    DEBUG    #记住口令
     Page Should Contain Element    id=com.cetcs.ecmapplication:id/forgetPWD    DEBUG    #忘记密码
     Page Should Contain Element    id=com.cetcs.ecmapplication:id/chaIV    DEBUG    #停止登录
-    sleep    20s    #待系统稳定
+    sleep    10s    #待系统稳定
     Close Application
     [Teardown]
 
@@ -2532,7 +2531,7 @@ close keyguard
     ${localAddress}=    Get Local Address
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.android.settings
     ...    appActivity=.HWSettings
-    sleep     10s
+    sleep    10s
     Cswipe    250    700    250    200
     Sleep    5s
     Wait Until Page Contains    锁屏和密码    30s    check failed!
