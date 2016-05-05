@@ -2079,14 +2079,14 @@ Resource          test_mg_ecmapp_resource.robot
     log    ${pram1}
     Wait Until Page Contains    1个月    30s    check failed!
     Click Element    name=确定
-    Wait Until Page Contains    正在设置请稍后...    30s    check failed!
+    #Wait Until Page Contains    正在设置请稍后...    30s    check failed!
     Press Keycode    3
     Sleep    10s
     Wait Until Page Contains    密码卡管家    30s    check failed!
     Click Element    name=密码卡管家
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!
     Wait Until Page Contains    安全设置    30s    check failed!
-    Wait Until Page Contains    1个月 \ (距下次提醒： 30天)    30s    check failed!
+    Wait Until Page Contains    1个月 \ (距下次提醒：    30s    check failed!
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/radiobutton_close    30s    check failed!
@@ -2099,7 +2099,7 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Text    ${TELE_NUMBER}
     sleep    10s
     Close Application
-    [Teardown]    Run Keyword If Test Failed    Close Application
+    [Teardown]    Run Keyword If Test Failed    close password warning
 
 【N】安全检查：安全设置时点击手机返回键
     [Documentation]    预置条件：
@@ -2128,12 +2128,12 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Text    ${TELE_NUMBER}
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
-    Wait Until Page Contains Element    com.cetcs.ecmapplication:id/anquanshezhiTV    30s    check failed!    #进入安全设置界面
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!    #进入安全设置界面
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/miankoulingshezhiLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/miankoulingshezhiLayout
     Go Back
     Wait Until Page Contains    免口令登录
-    Wait Until Page Contains Element    com.cetcs.ecmapplication:id/anquanshezhiTV    30s    check failed!    #返回安全设置界面
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!    #返回安全设置界面
     Page Should Not Contain Text    开启后无需输入口令即可登录    DEBUG
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout    30s    check failed!
     Page Should Contain Text    口令重置提醒周期    DEBUG
@@ -2149,9 +2149,8 @@ Resource          test_mg_ecmapp_resource.robot
     log    ${pram1}
     Wait Until Page Contains    1个月    30s    check failed!
     Click Element    name=确定
-    Wait Until Page Contains    正在设置请稍后...    30s    check failed!
     Go Back
-    Wait Until Page Contains    1个月 \ (距下次提醒： 30天)    30s    check failed!
+    Wait Until Page Contains    1个月 \ (距下次提醒：     30s    check failed!
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
     Wait Until Page Contains    到期后提醒用户修改密码卡口令    30s    check failed!
@@ -2164,7 +2163,7 @@ Resource          test_mg_ecmapp_resource.robot
     Page Should Contain Text    ${TELE_NUMBER}
     sleep    10s
     Close Application
-    [Teardown]    Run Keyword If Test Failed    Close Application
+    [Teardown]    Run Keyword If Test Failed    close password warning
 
 【N】安全检查：安全加密算法检查
     [Documentation]    预置条件：
@@ -2547,4 +2546,37 @@ close keyguard
     Wait Until Page Contains    关闭指纹校验功能    30s    check failed!
     Click Element    id=android:id/button1
     Wait Until Page Contains    无密码    30s    check failed!
+    Close Application
+
+close password warning
+    Close All Applications
+    Sleep    10s
+    Kill Adb Process    ecm
+    Sleep    15s
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
+    ...    appActivity=.LaunchActivity
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
+    Click Element    id=com.cetcs.ecmapplication:id/rememberLayout
+    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanLayout    30s    check failed!
+    Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
+    Wait Until Page Contains Element    com.cetcs.ecmapplication:id/anquanshezhiTV    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/miankoulingshezhiLayout    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout    30s    check failed!
+    Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
+    Wait Until Page Contains    口令重置提醒    30s    check failed!
+    Page Should Contain Text    到期后提醒用户修改密码卡口令
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/radiobutton_close    30s    check failed!
+    Click Element    id=com.cetcs.ecmapplication:id/radiobutton_close
+    Click Element    name=确定
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanshezhiTV    30s    check failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/finishTV    30s    check failed!
+    Click Element    id=com.cetcs.ecmapplication:id/finishTV
+    Wait Until Page Contains    加密功能已启用    30s    sign in failed!
+    Page Should Contain Text    ${TELE_NUMBER}
     Close Application
