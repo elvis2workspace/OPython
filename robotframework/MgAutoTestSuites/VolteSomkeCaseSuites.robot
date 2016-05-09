@@ -1,10 +1,11 @@
 *** Settings ***
-Suite Setup
-Suite Teardown
-Test Teardown     Close All Applications
+Suite Setup       Launch Local Appium    192.168.20.114
+Suite Teardown    Stop Tookit    appium
+Test Setup
+Test Teardown
 Library           AppiumLibrary
-Library           CustomLibrary
 Resource          test_mg_ecmapp_resource.robot
+Library           CustomLibrary
 
 *** Test Cases ***
 【N】用户登录解锁:【入口】通知栏
@@ -2150,7 +2151,7 @@ Resource          test_mg_ecmapp_resource.robot
     Wait Until Page Contains    1个月    30s    check failed!
     Click Element    name=确定
     Go Back
-    Wait Until Page Contains    1个月 \ (距下次提醒：     30s    check failed!
+    Wait Until Page Contains    1个月 \ (距下次提醒：    30s    check failed!
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/koulingchongzhitixingzhouqishezhiLayout
     Wait Until Page Contains    到期后提醒用户修改密码卡口令    30s    check failed!
