@@ -1,6 +1,6 @@
 *** Settings ***
-Suite Setup       Launch Local Appium    192.168.20.114
-Suite Teardown    Stop Tookit    appium
+Suite Setup
+Suite Teardown
 Test Setup
 Test Teardown
 Library           AppiumLibrary
@@ -911,7 +911,7 @@ Library           CustomLibrary
     #预置条件-end
     ${pram}    Evaluate    os.system('adb shell reboot')    os
     log    ${pram}
-    sleep    30s
+    sleep    20s
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
     ...    appActivity=.LaunchActivity
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
