@@ -8,6 +8,57 @@ Resource          test_mg_ecmapp_resource.robot
 Library           CustomLibrary
 
 *** Test Cases ***
+【N】手机号码绑定：输入正确的手机号码绑定
+    [Documentation]    预置条件："1、被测终端（手机）已经准备就绪；
+    ...    2、TF密码卡、SIM卡已经插入；
+    ...    3、手机号码已经开通加密功能；
+    ...    4、成功进入手机号码绑定界面。"
+    ...
+    ...    操作步骤："1. 输入正确的手机号码（已经开通加密功能）：
+    ...    当前插入的SIM卡号；
+    ...    2. 点击下一步；
+    ...    3. 输入服务器发送的验证码，点击确定；"
+    ...
+    ...    预期结果："1. 成功输入并正确显示；
+    ...    2. 成功进入验证码输入界面；
+    ...    输入的手机号码成功收取到服务器发送的验证码；
+    ...    3. 手机号码与密码卡成功绑定。
+    ...    "
+    [Tags]    手机号码绑定
+    [Setup]    Kill Adb Process    ecm
+    ${localAddress}    Get Local Address
+    open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
+    ...    appActivity=.LaunchActivity
+    ${returnstatus}    ${returnVal}=    Run Keyword And Ignore Error    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !
+    ...    #进入安全手机终端，进入密码卡登录界面
+    Run Keyword If    '${returnstatus}'=='PASS'    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    #Click Element    id=com.cetcs.ecmapplication:id/rememberLayout    #1.0.4版本修改
+    Wait Until Page Contains    加密功能异常    30s    sign in failed!
+    Page Should Contain Text    密码卡未绑定手机号    ERROR
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV    30s    failed!
+    Click Element    id=com.cetcs.ecmapplication:id/homeErrorButtonTV
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/bundleTV    30s    check failed!    #绑定手机
+    Wait Until Page Contains    请输入开通加密功能的手机号码进行绑定    30s    sign in failed!
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/phonenumberET    30s    check failed!
+    Input Text    id=com.cetcs.ecmapplication:id/phonenumberET    ${TELE_NUMBER}
+    click element    id=com.cetcs.ecmapplication:id/mSingleButton    #下一步按钮
+    Wait Until Page Contains    ${TELE_NUMBER}    30s    check failed!
+    sleep    30s
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/mSingleButton    30s    check failed!
+    Click Element    id=com.cetcs.ecmapplication:id/mSingleButton    #确定按钮
+    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/bundleSuccessTV    30s    check failed!
+    Page Should Contain Text    手机号码绑定成功    DEBUG
+    Page Should Contain Text    手机号码与密码卡已绑定    DEBUG
+    Page Should Contain Text    可正常使用加密通讯    DEBUG
+    Click Element    id=com.cetcs.ecmapplication:id/finishButton
+    Wait Until Page Contains    加密功能已启用    30s    check failed!
+    Page Should Contain Text    ${TELE_NUMBER}    DEBUG
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/xiugaiLayout    DEBUG
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/xiaohuiLayout    DEBUG
+    Page Should Contain Element    id=com.cetcs.ecmapplication:id/anquanLayout    DEBUG
+    sleep    30s
+    Close Application
+
 【N】用户登录解锁:【入口】通知栏
     [Documentation]    预置条件：
     ...    "1. 终端已安装有效的移动SIM卡和正常状态的TF密码卡
@@ -22,17 +73,18 @@ Library           CustomLibrary
     ...    "1. 通知栏提示“密码卡未登录：无法使用加密通讯功能”
     ...    2. 跳转到ECM登录界面，界面显示正常，符合设计
     ...    3. 跳转到ECM登录界面，界面显示正常，符合设计"
-    [Tags]    用户登录解锁(#634)
+    [Tags]    用户登录解锁    f
     [Setup]    Kill Adb Process    ecm
     ${localAddress}    Get Local Address
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
     ...    appActivity=.LaunchActivity
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
-    Click Element    id=com.cetcs.ecmapplication:id/rememberLayout
-    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
-    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    ${returnstatus}    ${returnVal}=    Run Keyword And Ignore Error    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !
+    ...    #进入安全手机终端，进入密码卡登录界面
+    Run Keyword If    '${returnstatus}'=='PASS'    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    #Click Element    id=com.cetcs.ecmapplication:id/rememberLayout    #1.0.4版本修改
+    Run Keyword And Ignore Error    Click Element    id=com.cetcs.ecmapplication:id/loginBT
     Wait Until Page Contains    加密功能已启用    30s    sign in failed!
-    Page Should Contain Text    ${TELE_NUMBER}    DEBUG
+    Wait Until Page Contains    ${TELE_NUMBER}    30s    check failed!
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/miankoulingdengluTV    15s    failed!
@@ -60,7 +112,7 @@ Library           CustomLibrary
     ...
     ...    预期结果：
     ...    "1. 跳转到ECM登录界面，界面显示正常，符合设计；"
-    [Tags]    用户登录解锁(#634)
+    [Tags]    用户登录解锁
     [Setup]    Kill Adb Process    ecm
     ${localAddress}    Get Local Address
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
@@ -93,7 +145,7 @@ Library           CustomLibrary
     ...    "1. 弹出“跳过登录将不能使用加密通讯功能是否跳过”提示框
     ...    2. ECM登录界面消失，返回到桌面
     ...    3. 继续停留在ECM登录界面"
-    [Tags]    用户登录解锁(#634)
+    [Tags]    用户登录解锁
     [Setup]    Kill Adb Process    ecm
     ${localAddress}    Get Local Address
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
@@ -146,7 +198,7 @@ Library           CustomLibrary
     ...
     ...    预期结果：
     ...    "1. 登录成功，跳转到ECM主界面，界面显示正常，符合设计"
-    [Tags]    用户登录解锁(#634)
+    [Tags]    用户登录解锁
     [Setup]    Kill Adb Process    ecm
     ${localAddress}    Get Local Address
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
@@ -192,7 +244,7 @@ Library           CustomLibrary
     ...    6. 只能输入16位口令，16位以后的输入不被允许和显示，仍停留在当前界面
     ...    7. 输入内容被清空，仍停留在当前界面
     ...    "
-    [Tags]    用户登录解锁(#634)    change
+    [Tags]    change    用户登录解锁
     [Setup]    Kill Adb Process    ecm
     ${localAddress}    Get Local Address
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
@@ -258,7 +310,7 @@ Library           CustomLibrary
     ...
     ...    预期结果：
     ...    "1. 登录成功，跳转到ECM主界面，界面显示正常，符合设计"
-    [Tags]    用户登录解锁(#634)
+    [Tags]    用户登录解锁
     [Setup]    Kill Adb Process    ecm
     #预置条件
     ${localAddress}    Get Local Address
@@ -2177,18 +2229,19 @@ Library           CustomLibrary
     ...    预期结果：
     ...    "1. 进入安全设置界面；
     ...    2. 安全加密算法各子项检查正常，内容与界面都显示正常；"
-    [Tags]    安全检查(#641)
+    [Tags]    安全检查(#641)    sc
     [Setup]    Kill Adb Process    ecm
     #进入加密功能启用界面
     ${localAddress}    Get Local Address
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
     ...    appActivity=.LaunchActivity
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
-    Click Element    id=com.cetcs.ecmapplication:id/rememberLayout
-    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
-    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    ${returnstatus}    ${returnVal}=    Run Keyword And Ignore Error    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !
+    ...    #进入安全手机终端，进入密码卡登录界面
+    Run Keyword If    '${returnstatus}'=='PASS'    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    #Click Element    id=com.cetcs.ecmapplication:id/rememberLayout    #1.0.4版本修改
+    Run Keyword And Ignore Error    Click Element    id=com.cetcs.ecmapplication:id/loginBT
     Wait Until Page Contains    加密功能已启用    30s    sign in failed!
-    Page Should Contain Text    ${TELE_NUMBER}
+    Wait Until Page Contains    ${TELE_NUMBER}    30s    check failed!
     #预置条件-end
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanLayout    30s    check failed!
     Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
@@ -2228,17 +2281,19 @@ Library           CustomLibrary
     ...    预期结果：
     ...    "1. 进入安全设置界面；
     ...    2. 安全有效性状态各子项检查正常，内容与界面都显示正常；"
-    [Tags]    安全检查(#641)
+    [Tags]    安全检查(#641)    sc
     [Setup]    Kill Adb Process    ecm
     ${localAddress}    Get Local Address
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
     ...    appActivity=.LaunchActivity
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
-    Click Element    id=com.cetcs.ecmapplication:id/rememberLayout
-    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
-    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    ${returnstatus}    ${returnVal}=    Run Keyword And Ignore Error    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    30s    Failed to jump LoginForm !
+    ...    #进入安全手机终端，进入密码卡登录界面
+    Run Keyword If    '${returnstatus}'=='PASS'    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${OldVpwd}
+    #Click Element    id=com.cetcs.ecmapplication:id/rememberLayout    #1.0.4版本修改
+    Run Keyword And Ignore Error    Click Element    id=com.cetcs.ecmapplication:id/loginBT
     Wait Until Page Contains    加密功能已启用    30s    sign in failed!
-    Page Should Contain Text    ${TELE_NUMBER}
+    Wait Until Page Contains    ${TELE_NUMBER}    30s    check failed!
+    #Click Element    id=com.cetcs.ecmapplication:id/rememberLayout    #1.0.4需求版本修改
     #预置条件-end
     Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/anquanLayout    30s    sign in failed!
     Click Element    id=com.cetcs.ecmapplication:id/anquanLayout
@@ -2254,7 +2309,7 @@ Library           CustomLibrary
     Page Should Contain Text    检查安全加密算法    DEBUG
     Page Should Contain Text    检查安全有效性状态    DEBUG
     Page Should Contain Text    数字证书有效性    DEBUG
-    Page Should Contain Text    密钥有效性    DEBUG
+    Page Should Contain Text    密钥更新时间    DEBUG    #1.0.4版本修改
     Page Should Contain Text    密码管理软件版本    DEBUG
     Page Should Contain Text    已是最新版本
     Click Element    id=com.cetcs.ecmapplication:id/finishTV
