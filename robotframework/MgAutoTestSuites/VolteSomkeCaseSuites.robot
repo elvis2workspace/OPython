@@ -987,13 +987,13 @@ Resource          test_mg_ecmapp_resource.robot
     Reset Android    ecm
     open Application    http://${localAddress}:4723/wd/hub    platformName=${PLATFORM_NAME}    platformVersion=${PLATFORM_VERSION}    deviceName=${DEVICE_NAME}    automationName=appium    appPackage=com.cetcs.ecmapplication
     ...    appActivity=.LaunchActivity
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    15s    Failed to jump LoginForm !    #进入安全手机终端，进入密码卡登录界面
-    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/rememberLayout    15s    check failed!
-    #Click Element    id=com.cetcs.ecmapplication:id/rememberLayout    #1.0.4版本修改默认不记住密码
-    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${NewVpwd}
-    Click Element    id=com.cetcs.ecmapplication:id/loginBT
+    ${returnstatus}    ${returnVal}=    Run Keyword And Ignore Error    Wait Until Page Contains Element    id=com.cetcs.ecmapplication:id/loginLogo    15s    Failed to jump LoginForm !
+    ...    #进入安全手机终端，进入密码卡登录界面
+    Run Keyword If    '${returnstatus}'=='PASS'    Input Text    id=com.cetcs.ecmapplication:id/mComplexEditText    ${NewVpwd}
+    #Click Element    id=com.cetcs.ecmapplication:id/rememberLayout    #1.0.4版本修改
+    Run Keyword And Ignore Error    Click Element    id=com.cetcs.ecmapplication:id/loginBT
     Wait Until Page Contains    加密功能已启用    15s    sign in failed!
-    Wait Until Page Contains    ${TELE_NUMBER}    15s    check failed!
+    Wait Until Page Contains    ${TELE_NUMBER}    20s    check failed!
     Press Keycode    3
     #准备进入到设置停止进程
     close application
